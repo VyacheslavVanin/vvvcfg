@@ -1,0 +1,26 @@
+dncfg_node dncfg_node_data_t;
+
+START default  ERROR;
+START is_name  PROP  add_name;
+
+PROP  default  ERROR;
+PROP  is_name  PROP_NAME add_property_name;
+PROP  is_ref   PROP_REF add_ref;
+
+PROP_NAME default ERROR;
+PROP_NAME is_eq   PROP_NAME_EQ;
+PROP_NAME is_comma PROP;
+
+PROP_NAME_EQ default ERROR;
+PROP_NAME_EQ is_value PROP_NAME_VALUE append_value;
+PROP_NAME_EQ is_number PROP_NAME_NUMBER append_number;
+
+PROP_NAME_VALUE default ERROR;
+PROP_NAME_VALUE is_value PROP_NAME_VALUE append_value;
+PROP_NAME_VALUE is_comma PROP;
+
+PROP_NAME_NUMBER default ERROR;
+PROP_NAME_NUMBER is_comma PROP;
+
+PROP_REF default  ERROR;
+PROP_REF is_comma PROP;

@@ -1,0 +1,5 @@
+*.swp
+a.out
+token_parser
+node_parser
+myconfigsample.cfg

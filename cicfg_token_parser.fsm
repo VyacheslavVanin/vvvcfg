@@ -1,0 +1,80 @@
+dncfg_token dncfg_token_data_t;
+
+SPACE  default       ERROR      on_error unexpected_symbol;
+SPACE  is_eol        END;
+SPACE  is_space      SPACE;
+SPACE  is_alpha      NAME       start_name_token append_symbol;
+SPACE  is_quote      STRING     start_string_token;
+SPACE  is_number     NUM        start_number_token append_symbol;
+SPACE  is_dollar     REF_START  start_ref_token;
+SPACE  is_comma      SPACE      commit_comma;
+SPACE  is_eq         SPACE      commit_eq;
+SPACE  is_backslash  NEXTLINE;
+SPACE  is_sharp      COMMENT;
+
+NAME   default       ERROR      on_error;
+NAME   is_eol        END;
+NAME   is_alpha      NAME       append_symbol;
+NAME   is_number     NAME       append_symbol;
+NAME   is_space      SPACE;
+NAME   is_comma      SPACE      commit_comma;
+NAME   is_eq         SPACE      commit_eq;
+NAME   is_backslash  NEXTLINE;
+NAME   is_sharp      COMMENT;
+
+REF_START  default   ERROR  on_error;
+REF_START  is_alpha  REF    append_symbol;
+
+REF   default       ERROR      on_error;
+REF   is_eol        END;
+REF   is_alpha      REF        append_symbol;
+REF   is_number     REF        append_symbol;
+REF   is_space      SPACE;
+REF   is_comma      SPACE      commit_comma;
+REF   is_eq         SPACE      commit_eq;
+REF   is_backslash  NEXTLINE;
+REF   is_sharp      COMMENT;
+
+
+STRING  default       STRING       append_symbol;
+STRING  is_backslash  STRING_ESC;
+STRING  is_quote      SPACE;
+STRING  is_eol        ERROR        on_error;
+
+STRING_ESC default    STRING;
+STRING_ESC is_escape  STRING    append_escape_symbol;
+STRING_ESC is_eol     ERROR     on_error;
+
+NUM  default       ERROR     on_error;
+NUM  is_eol        END;
+NUM  is_number     NUM       append_symbol;
+NUM  is_dot        NUM_DOT   append_symbol;
+NUM  is_space      SPACE;
+NUM  is_comma      SPACE     commit_comma;
+NUM  is_eq         SPACE     commit_eq;
+NUM  is_backslash  NEXTLINE;
+NUM  is_sharp      COMMENT;
+
+NUM_DOT  default       ERROR        on_error;
+NUM_DOT  is_eol        END;
+NUM_DOT  is_number     NUM_DOT_NUM  append_symbol;
+NUM_DOT  is_space      SPACE;
+NUM_DOT  is_comma      SPACE        commit_comma;
+NUM_DOT  is_eq         SPACE        commit_eq;
+NUM_DOT  is_backslash  NEXTLINE;
+NUM_DOT  is_sharp      COMMENT;
+
+NUM_DOT_NUM  default       ERROR        on_error;
+NUM_DOT_NUM  is_eol        END;
+NUM_DOT_NUM  is_number     NUM_DOT_NUM  append_symbol;
+NUM_DOT_NUM  is_space      SPACE;
+NUM_DOT_NUM  is_comma      SPACE        commit_comma;
+NUM_DOT_NUM  is_eq         SPACE        commit_eq;
+NUM_DOT_NUM  is_backslash  NEXTLINE;
+NUM_DOT_NUM  is_sharp      COMMENT;
+
+COMMENT default COMMENT;
+COMMENT is_eol  END;
+
+NEXTLINE  default  ERROR unexpected_symbol;
+NEXTLINE  is_eol   END;
