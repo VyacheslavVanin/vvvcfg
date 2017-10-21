@@ -6,8 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "token_parser.h"
-#include "token_parser/dncfg_token_fsm.h"
+#include "token_parser/token_parser.h"
 
 class CfgNode {
 public:
@@ -111,11 +110,6 @@ name_properties name_properties_from_tokens(const std::vector<token_t>& tokens)
 
     return ret;
 }
-
-void addChild(CfgNode& parent, const std::vector<token_t>& tokens)
-{
-}
-
 
 size_t count_spaces(const std::string& str)
 {

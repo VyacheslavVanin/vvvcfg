@@ -1,5 +1,5 @@
 *.swp
 a.out
-token_parser
-node_parser
+token_parser/generated
+node_parser/generated
 myconfigsample.cfg

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <memory>
 
-#include "token_parser/dncfg_token_fsm.h"
+#include "generated/dncfg_token_fsm.h"
 
 enum TOKEN_TYPE {
     TOKEN_TYPE_NAME,
