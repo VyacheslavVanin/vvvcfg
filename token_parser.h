@@ -12,7 +12,8 @@ enum TOKEN_TYPE {
     TOKEN_TYPE_EQ,
     TOKEN_TYPE_COMMA,
     TOKEN_TYPE_REF,
-    TOKEN_TYPE_SPACE
+    TOKEN_TYPE_SPACE,
+    TOKEN_TYPE_NEWLINE
 };
 
 struct token_t {

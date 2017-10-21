@@ -67,6 +67,11 @@ void commit(dncfg_token_data_t* data) { data->commit = true; }
 
 void start_eq(dncfg_token_data_t* data) { data->token = {TOKEN_TYPE_EQ, ""}; }
 
+void start_newline_token(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_NEWLINE, ""};
+}
+
 void putback(dncfg_token_data_t* data)
 {
     data->stream->putback(data->current_char);
@@ -185,6 +190,7 @@ const char* to_string(TOKEN_TYPE type)
     case TOKEN_TYPE_REF: return "REF";
     case TOKEN_TYPE_NUMBER: return "NUMBER";
     case TOKEN_TYPE_SPACE: return "SPACE";
+    case TOKEN_TYPE_NEWLINE: return "NEWLINE";
     }
     return "unknown";
 }
@@ -196,37 +202,36 @@ std::ostream& operator<<(std::ostream& str, const token_t& t)
 }
 
 struct TokenStream::pImpl {
-    pImpl(std::istream& str) : data(str) {
-        ctx.data = &data;
+    pImpl(std::istream& str) : data(str)
+    {
+        ctx.data  = &data;
         ctx.state = DNCFG_TOKEN_BEGIN;
     }
     dncfg_token_data_t data;
     dncfg_token_ctx_t ctx;
 };
 
-TokenStream::TokenStream(std::istream& str) {
-    pimpl.reset(new pImpl(str));
-}
+TokenStream::TokenStream(std::istream& str) { pimpl.reset(new pImpl(str)); }
 
 TokenStream::~TokenStream() = default;
-TokenStream::operator bool() const {return (bool)*pimpl->data.stream;}
+TokenStream::operator bool() const { return (bool)*pimpl->data.stream; }
 
 TokenStream& operator>>(TokenStream& str, token_t& out)
 {
     if (!str)
         return str;
-    
+
     dncfg_token_data_t& data = str.pimpl->data;
-    dncfg_token_ctx_t& ctx = str.pimpl->ctx;
-    std::istream& stream = *data.stream; 
-    
-    while(stream.get(data.current_char)) {
+    dncfg_token_ctx_t& ctx   = str.pimpl->ctx;
+    std::istream& stream     = *data.stream;
+
+    while (stream.get(data.current_char)) {
         dncfg_token_step(&ctx);
         if (!data.error_message.empty()) {
             throw std::logic_error(data.error_message);
         }
         if (data.commit) {
-            out = data.token;
+            out         = data.token;
             data.commit = false;
             return str;
         }
