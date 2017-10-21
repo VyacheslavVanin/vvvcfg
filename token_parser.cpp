@@ -3,9 +3,17 @@
 #include <string>
 
 struct dncfg_token_data_t {
-    char current_char;
-    std::vector<token_t> tokens;
+    dncfg_token_data_t(std::istream& str)
+        : current_char('\0'), line_number(0), commit(false), stream(&str)
+    {
+    }
 
+    char current_char;
+    token_t token;
+    size_t line_number;
+    bool commit;
+
+    std::istream* stream;
     std::string error_message;
 };
 
@@ -18,44 +26,55 @@ void unexpected_symbol(dncfg_token_data_t* data)
     data->error_message += "\'";
 }
 
+void start_space_token(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_SPACE, ""};
+}
+
+void inc_line_number(dncfg_token_data_t* data) { ++data->line_number; }
+
 void start_name_token(dncfg_token_data_t* data)
 {
-    data->tokens.push_back({TOKEN_TYPE_NAME, {}});
-}
-
-void start_string_token(dncfg_token_data_t* data)
-{
-    data->tokens.push_back({TOKEN_TYPE_VALUE, {}});
-}
-
-void start_number_token(dncfg_token_data_t* data)
-{
-    data->tokens.push_back({TOKEN_TYPE_NUMBER, {}});
-}
-
-void start_ref_token(dncfg_token_data_t* data)
-{
-    data->tokens.push_back({TOKEN_TYPE_REF, {}});
-}
-
-void commit_comma(dncfg_token_data_t* data)
-{
-    data->tokens.push_back({TOKEN_TYPE_COMMA, {}});
-}
-
-void commit_eq(dncfg_token_data_t* data)
-{
-    data->tokens.push_back({TOKEN_TYPE_EQ, {}});
+    data->token = {TOKEN_TYPE_NAME, ""};
 }
 
 void append_symbol(dncfg_token_data_t* data)
 {
-    data->tokens.back().value += data->current_char;
+    data->token.value += data->current_char;
+}
+
+void start_string_token(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_STRING, ""};
+}
+
+void start_number_token(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_NUMBER, ""};
+}
+
+void start_ref_token(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_REF, ""};
+}
+
+void start_comma(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_COMMA, ""};
+}
+
+void commit(dncfg_token_data_t* data) { data->commit = true; }
+
+void start_eq(dncfg_token_data_t* data) { data->token = {TOKEN_TYPE_EQ, ""}; }
+
+void putback(dncfg_token_data_t* data)
+{
+    data->stream->putback(data->current_char);
 }
 
 static void append(dncfg_token_data_t* data, char ch)
 {
-    data->tokens.back().value += ch;
+    data->token.value += ch;
 }
 
 void append_escape_symbol(dncfg_token_data_t* data)
@@ -160,10 +179,12 @@ const char* to_string(TOKEN_TYPE type)
 {
     switch (type) {
     case TOKEN_TYPE_NAME: return "NAME";
-    case TOKEN_TYPE_VALUE: return "VALUE";
+    case TOKEN_TYPE_STRING: return "STRING";
     case TOKEN_TYPE_EQ: return "EQ";
     case TOKEN_TYPE_COMMA: return "COMMA";
     case TOKEN_TYPE_REF: return "REF";
+    case TOKEN_TYPE_NUMBER: return "NUMBER";
+    case TOKEN_TYPE_SPACE: return "SPACE";
     }
     return "unknown";
 }
@@ -174,26 +195,65 @@ std::ostream& operator<<(std::ostream& str, const token_t& t)
     return str;
 }
 
-parse_token_result line_to_tokens(const std::string& input)
-{
+struct TokenStream::pImpl {
+    pImpl(std::istream& str) : data(str) {
+        ctx.data = &data;
+        ctx.state = DNCFG_TOKEN_BEGIN;
+    }
     dncfg_token_data_t data;
-    dncfg_token_ctx_t ctx = {DNCFG_TOKEN_SPACE, &data};
+    dncfg_token_ctx_t ctx;
+};
 
-    parse_token_result ret;
-    for (auto ch : input) {
-        data.current_char = ch;
+TokenStream::TokenStream(std::istream& str) {
+    pimpl.reset(new pImpl(str));
+}
+
+TokenStream::~TokenStream() = default;
+TokenStream::operator bool() const {return (bool)*pimpl->data.stream;}
+
+TokenStream& operator>>(TokenStream& str, token_t& out)
+{
+    if (!str)
+        return str;
+    
+    dncfg_token_data_t& data = str.pimpl->data;
+    dncfg_token_ctx_t& ctx = str.pimpl->ctx;
+    std::istream& stream = *data.stream; 
+    
+    while(stream.get(data.current_char)) {
         dncfg_token_step(&ctx);
         if (!data.error_message.empty()) {
-            ret.error_message = std::move(data.error_message);
-            ret.status        = parse_token_result::STATUS::ERROR;
-            return ret;
+            throw std::logic_error(data.error_message);
+        }
+        if (data.commit) {
+            out = data.token;
+            data.commit = false;
+            return str;
         }
     }
 
-    ret.tokens = std::move(data.tokens);
-    ret.status = ctx.state == DNCFG_TOKEN_NEXTLINE
-                     ? parse_token_result::STATUS::NEXT_LINE
-                     : parse_token_result::STATUS::OK;
-    return ret;
+    return str;
 }
 
+// parse_token_result line_to_tokens(const std::string& input)
+//{
+//    dncfg_token_data_t data;
+//    dncfg_token_ctx_t ctx = {DNCFG_TOKEN_SPACE, &data};
+//
+//    parse_token_result ret;
+//    for (auto ch : input) {
+//        data.current_char = ch;
+//        dncfg_token_step(&ctx);
+//        if (!data.error_message.empty()) {
+//            ret.error_message = std::move(data.error_message);
+//            ret.status        = parse_token_result::STATUS::ERROR;
+//            return ret;
+//        }
+//    }
+//
+//    ret.tokens = std::move(data.tokens);
+//    ret.status = ctx.state == DNCFG_TOKEN_NEXTLINE
+//                     ? parse_token_result::STATUS::NEXT_LINE
+//                     : parse_token_result::STATUS::OK;
+//    return ret;
+//}

@@ -138,36 +138,42 @@ int main(int argc, char** argv)
     std::ifstream f("./myconfigsample.cfg");
     std::string line;
 
-    CfgNode root("root");
-    std::vector<CfgNode*> stack {&root};
-    size_t last_lvl = 0;
-
-    size_t tab_width = 0;
-    while (std::getline(f, line)) {
-        const auto spaces = count_spaces(line);
-        tab_width = tab_width ? tab_width : spaces;
-        const auto lvl = indent_lvl(spaces, tab_width);
-        if (lvl > last_lvl + 1)
-            throw std::logic_error("Overindent");
-
-        last_lvl = lvl;
-        stack.resize(lvl + 1);
-
-        const auto tokens = line_to_tokens(line);
-        if (tokens.status == parse_token_result::STATUS::ERROR) {
-            std::cout << tokens.error_message << "\n";
-            break;
-        }
-
-        auto& parrent = stack.back();
-        const auto& name = tokens.tokens.front().value;
-        //new_node = Node()
-        //new_node.properties['value'] = value
-        //stack.append(new_node)
-        //stack[lvl].children[key] = new_node
-
-        std::cout << "-------------------- " << count_spaces(line) << " " << lvl << "\n";
-        for (const auto& token : tokens.tokens)
-            std::cout << token << "\n";
+    TokenStream ts(f);
+    token_t tok;
+    while (ts >> tok) {
+        std::cout << tok << "\n";
     }
+
+    //CfgNode root("root");
+    //std::vector<CfgNode*> stack {&root};
+    //size_t last_lvl = 0;
+
+    //size_t tab_width = 0;
+    //while (std::getline(f, line)) {
+    //    const auto spaces = count_spaces(line);
+    //    tab_width = tab_width ? tab_width : spaces;
+    //    const auto lvl = indent_lvl(spaces, tab_width);
+    //    if (lvl > last_lvl + 1)
+    //        throw std::logic_error("Overindent");
+
+    //    last_lvl = lvl;
+    //    stack.resize(lvl + 1);
+
+    //    const auto tokens = line_to_tokens(line);
+    //    if (tokens.status == parse_token_result::STATUS::ERROR) {
+    //        std::cout << tokens.error_message << "\n";
+    //        break;
+    //    }
+
+    //    auto& parrent = stack.back();
+    //    const auto& name = tokens.tokens.front().value;
+    //    //new_node = Node()
+    //    //new_node.properties['value'] = value
+    //    //stack.append(new_node)
+    //    //stack[lvl].children[key] = new_node
+
+    //    std::cout << "-------------------- " << count_spaces(line) << " " << lvl << "\n";
+    //    for (const auto& token : tokens.tokens)
+    //        std::cout << token << "\n";
+    //}
 }
