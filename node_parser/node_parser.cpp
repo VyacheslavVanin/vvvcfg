@@ -166,9 +166,7 @@ CfgNode make_cfg(std::istream& input)
     dncfg_node_data_t data;
     dncfg_node_ctx_t ctx{DNCFG_NODE_START, &data};
 
-    while (ts >> data.input) {
-        std::cout << data.input << "\n";
+    while (ts >> data.input)
         dncfg_node_step(&ctx);
-    }
     return std::move(data.root);
 }
