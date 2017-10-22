@@ -21,6 +21,7 @@ PROP  is_newline    START        inc_line_count;
 PROP  is_linecount  PROP         inc_line_count;
 PROP  is_eq         PROP_EQ;
 PROP  is_comma      PROP_COMMA;
+PROP  is_name       PROP         add_prop_name;
 
 PROP_COMMA  default       ERROR       on_invalid_token;
 PROP_COMMA  is_newline    PROP_COMMA  inc_line_count;
@@ -39,6 +40,7 @@ PROP_EQ_STR  is_newline    START        inc_line_count;
 PROP_EQ_STR  is_linecount  PROP_EQ_STR  inc_line_count;
 PROP_EQ_STR  is_string     PROP_EQ_STR  add_prop_value_str;
 PROP_EQ_STR  is_comma      PROP_COMMA;
+PROP_EQ_STR  is_name       PROP         add_prop_name;
 
 PROP_EQ_NUM  default       ERROR         on_invalid_token;
 PROP_EQ_NUM  is_newline    START         inc_line_count;
