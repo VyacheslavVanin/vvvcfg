@@ -20,6 +20,7 @@ enum TOKEN_TYPE {
 struct token_t {
     TOKEN_TYPE type;
     std::string value;
+    size_t line;
 };
 
 const char* to_string(TOKEN_TYPE type);

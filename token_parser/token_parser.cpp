@@ -28,14 +28,14 @@ void unexpected_symbol(dncfg_token_data_t* data)
 
 void start_space_token(dncfg_token_data_t* data)
 {
-    data->token = {TOKEN_TYPE_SPACE, ""};
+    data->token = {TOKEN_TYPE_SPACE, "", data->line_number};
 }
 
 void inc_line_number(dncfg_token_data_t* data) { ++data->line_number; }
 
 void start_name_token(dncfg_token_data_t* data)
 {
-    data->token = {TOKEN_TYPE_NAME, ""};
+    data->token = {TOKEN_TYPE_NAME, "", data->line_number};
 }
 
 void append_symbol(dncfg_token_data_t* data)
@@ -45,31 +45,34 @@ void append_symbol(dncfg_token_data_t* data)
 
 void start_string_token(dncfg_token_data_t* data)
 {
-    data->token = {TOKEN_TYPE_STRING, ""};
+    data->token = {TOKEN_TYPE_STRING, "", data->line_number};
 }
 
 void start_number_token(dncfg_token_data_t* data)
 {
-    data->token = {TOKEN_TYPE_NUMBER, ""};
+    data->token = {TOKEN_TYPE_NUMBER, "", data->line_number};
 }
 
 void start_ref_token(dncfg_token_data_t* data)
 {
-    data->token = {TOKEN_TYPE_REF, ""};
+    data->token = {TOKEN_TYPE_REF, "", data->line_number};
 }
 
 void start_comma(dncfg_token_data_t* data)
 {
-    data->token = {TOKEN_TYPE_COMMA, ""};
+    data->token = {TOKEN_TYPE_COMMA, "", data->line_number};
 }
 
 void commit(dncfg_token_data_t* data) { data->commit = true; }
 
-void start_eq(dncfg_token_data_t* data) { data->token = {TOKEN_TYPE_EQ, ""}; }
+void start_eq(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_EQ, "", data->line_number};
+}
 
 void start_newline_token(dncfg_token_data_t* data)
 {
-    data->token = {TOKEN_TYPE_NEWLINE, ""};
+    data->token = {TOKEN_TYPE_NEWLINE, "", data->line_number};
 }
 
 void putback(dncfg_token_data_t* data)
@@ -204,7 +207,7 @@ std::ostream& operator<<(std::ostream& str, const token_t& t)
 struct TokenStream::pImpl {
     pImpl(std::istream& str) : data(str)
     {
-        ctx.data  = &data;
+        ctx.data = &data;
         ctx.state = DNCFG_TOKEN_BEGIN;
     }
     dncfg_token_data_t data;
@@ -222,8 +225,8 @@ TokenStream& operator>>(TokenStream& str, token_t& out)
         return str;
 
     dncfg_token_data_t& data = str.pimpl->data;
-    dncfg_token_ctx_t& ctx   = str.pimpl->ctx;
-    std::istream& stream     = *data.stream;
+    dncfg_token_ctx_t& ctx = str.pimpl->ctx;
+    std::istream& stream = *data.stream;
 
     while (stream.get(data.current_char)) {
         dncfg_token_step(&ctx);
@@ -231,7 +234,7 @@ TokenStream& operator>>(TokenStream& str, token_t& out)
             throw std::logic_error(data.error_message);
         }
         if (data.commit) {
-            out         = data.token;
+            out = data.token;
             data.commit = false;
             return str;
         }

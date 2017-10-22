@@ -48,7 +48,8 @@ void setup_lvl(dncfg_node_data_t* data)
     tab_width = tab_width ? tab_width : spaces;
     const auto lvl = indent_lvl(spaces, tab_width);
     if (lvl > last_lvl + 1)
-        throw std::logic_error("Overindent");
+        throw std::logic_error("Overindent on line " +
+                               std::to_string(data->input.line));
 
     last_lvl = lvl;
     stack.resize(lvl + 1);
@@ -63,7 +64,11 @@ void reset_lvl(dncfg_node_data_t* data)
 void on_invalid_token(dncfg_node_data_t* data)
 {
     (void)data;
-    throw std::logic_error("Invalid token");
+    const token_t& token = data->input;
+    const std::string& token_type = to_string(token.type);
+    const std::string& line = std::to_string(token.line);
+    throw std::logic_error(std::string("Invalid token: ") + token_type + " (" +
+                           token.value + ") on line " + line);
 }
 
 void add_subnode(dncfg_node_data_t* data)
