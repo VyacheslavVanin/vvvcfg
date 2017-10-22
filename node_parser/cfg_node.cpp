@@ -11,7 +11,7 @@ void print_node(std::ostream& str, const CfgNode& node, int tab_width = 4,
     for (auto p : node) {
         str << " " << p.first;
         if (!p.second.empty())
-            str << " = " << p.second;
+            str << " = \"" << p.second << "\"";
         str << ",";
     }
     str << "\n";
