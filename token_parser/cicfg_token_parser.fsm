@@ -2,7 +2,7 @@
 dncfg_token dncfg_token_data_t;
 
 BEGIN  is_space      BEGIN_SPACE  start_space_token append_symbol;
-BEGIN  is_eol        BEGIN        inc_line_number;
+BEGIN  is_eol        BEGIN        inc_line_number  line_count_token  commit;
 BEGIN  is_alpha      NAME         start_name_token     append_symbol;
 BEGIN  is_quote      STRING       start_string_token;
 BEGIN  is_number     NUM          start_number_token   append_symbol;
@@ -13,7 +13,7 @@ BEGIN  is_backslash  NEXTLINE;
 BEGIN  is_sharp      COMMENT;
 
 BEGIN_SPACE  default       ERROR;
-BEGIN_SPACE  is_eol        BEGIN        inc_line_number;
+BEGIN_SPACE  is_eol        BEGIN        inc_line_number  line_count_token  commit;
 BEGIN_SPACE  is_space      BEGIN_SPACE  append_symbol;
 BEGIN_SPACE  is_alpha      SPACE        putback           commit;
 BEGIN_SPACE  is_quote      SPACE        putback           commit;
@@ -100,4 +100,4 @@ COMMENT default COMMENT;
 COMMENT is_eol  BEGIN     inc_line_number start_newline_token commit;
 
 NEXTLINE  default  ERROR unexpected_symbol;
-NEXTLINE  is_eol   SPACE inc_line_number;
+NEXTLINE  is_eol   SPACE inc_line_number  line_count_token  commit;

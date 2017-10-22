@@ -5,7 +5,8 @@
 #include "token_parser/token_parser.h"
 
 struct dncfg_node_data_t {
-    dncfg_node_data_t() : last_lvl(0), tab_width(0), root("root"), stack{&root}
+    dncfg_node_data_t()
+        : last_lvl(0), tab_width(0), line_number(1), root("root"), stack{&root}
     {
     }
 
@@ -13,6 +14,7 @@ struct dncfg_node_data_t {
 
     size_t last_lvl;
     size_t tab_width;
+    size_t line_number;
     CfgNode root;
     std::vector<CfgNode*> stack{&root};
     std::string last_prop_name;
@@ -26,13 +28,13 @@ size_t count_spaces(const std::string& str)
            str.begin();
 }
 
-size_t indent_lvl(size_t spaces, size_t indent_width = 4)
+size_t indent_lvl(size_t spaces, size_t indent_width, size_t line)
 {
     if (spaces == 0)
         return 0;
     if (spaces % indent_width)
         throw std::logic_error(
-            std::string("Invalid indent of ") + std::to_string(spaces) +
+            std::string("Invalid indent on line ") + std::to_string(line) + ": "+ std::to_string(spaces) +
             " spaces, when tab width = " + std::to_string(indent_width));
     return spaces / indent_width;
 }
@@ -46,10 +48,10 @@ void setup_lvl(dncfg_node_data_t* data)
 
     const auto spaces = count_spaces(data->input.value);
     tab_width = tab_width ? tab_width : spaces;
-    const auto lvl = indent_lvl(spaces, tab_width);
+    const auto lvl = indent_lvl(spaces, tab_width, data->line_number);
     if (lvl > last_lvl + 1)
         throw std::logic_error("Overindent on line " +
-                               std::to_string(data->input.line));
+                               std::to_string(data->line_number));
 
     last_lvl = lvl;
     stack.resize(lvl + 1);
@@ -61,12 +63,14 @@ void reset_lvl(dncfg_node_data_t* data)
     data->stack.resize(1);
 }
 
+void inc_line_count(dncfg_node_data_t* data) { data->line_number++; }
+
 void on_invalid_token(dncfg_node_data_t* data)
 {
     (void)data;
     const token_t& token = data->input;
     const std::string& token_type = to_string(token.type);
-    const std::string& line = std::to_string(token.line);
+    const std::string& line = std::to_string(data->line_number);
     throw std::logic_error(std::string("Invalid token: ") + token_type + " (" +
                            token.value + ") on line " + line);
 }
@@ -149,6 +153,11 @@ int dncfg_node_is_number(const dncfg_node_data_t* data)
     return data->input.type == TOKEN_TYPE_NUMBER;
 }
 
+int dncfg_node_is_linecount(const dncfg_node_data_t* data)
+{
+    return data->input.type == TOKEN_TYPE_LINECOUNTER;
+}
+
 CfgNode make_cfg(std::istream& input)
 {
     TokenStream ts(input);
@@ -156,7 +165,9 @@ CfgNode make_cfg(std::istream& input)
     dncfg_node_data_t data;
     dncfg_node_ctx_t ctx{DNCFG_NODE_START, &data};
 
-    while (ts >> data.input)
+    while (ts >> data.input) {
+        std::cout << data.input << "\n";
         dncfg_node_step(&ctx);
+    }
     return std::move(data.root);
 }

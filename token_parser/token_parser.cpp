@@ -104,6 +104,11 @@ void append_escape_symbol(dncfg_token_data_t* data)
     }
 }
 
+void line_count_token(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_LINECOUNTER, "", data->line_number};
+}
+
 int dncfg_token_is_alpha(const dncfg_token_data_t* data)
 {
     const char ch = data->current_char;
@@ -194,6 +199,7 @@ const char* to_string(TOKEN_TYPE type)
     case TOKEN_TYPE_NUMBER: return "NUMBER";
     case TOKEN_TYPE_SPACE: return "SPACE";
     case TOKEN_TYPE_NEWLINE: return "NEWLINE";
+    case TOKEN_TYPE_LINECOUNTER: return "LINECOUNTER";
     }
     return "unknown";
 }
@@ -243,25 +249,3 @@ TokenStream& operator>>(TokenStream& str, token_t& out)
     return str;
 }
 
-// parse_token_result line_to_tokens(const std::string& input)
-//{
-//    dncfg_token_data_t data;
-//    dncfg_token_ctx_t ctx = {DNCFG_TOKEN_SPACE, &data};
-//
-//    parse_token_result ret;
-//    for (auto ch : input) {
-//        data.current_char = ch;
-//        dncfg_token_step(&ctx);
-//        if (!data.error_message.empty()) {
-//            ret.error_message = std::move(data.error_message);
-//            ret.status        = parse_token_result::STATUS::ERROR;
-//            return ret;
-//        }
-//    }
-//
-//    ret.tokens = std::move(data.tokens);
-//    ret.status = ctx.state == DNCFG_TOKEN_NEXTLINE
-//                     ? parse_token_result::STATUS::NEXT_LINE
-//                     : parse_token_result::STATUS::OK;
-//    return ret;
-//}
