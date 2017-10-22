@@ -31,9 +31,9 @@ size_t indent_lvl(size_t spaces, size_t indent_width = 4)
     if (spaces == 0)
         return 0;
     if (spaces % indent_width)
-        throw std::logic_error(std::string("Invalid indent: ") +
-                               std::to_string(spaces) + " " +
-                               std::to_string(indent_width));
+        throw std::logic_error(
+            std::string("Invalid indent of ") + std::to_string(spaces) +
+            " spaces, when tab width = " + std::to_string(indent_width));
     return spaces / indent_width;
 }
 } // namespace
