@@ -18,7 +18,13 @@ NODE  is_ref      REF     add_ref;
 PROP  default     ERROR     on_invalid_token;
 PROP  is_newline  START;
 PROP  is_eq       PROP_EQ;
-PROP  is_comma    NODE;
+PROP  is_comma    PROP_COMMA;
+
+PROP_COMMA  default     ERROR   on_invalid_token;
+PROP_COMMA  is_newline  PROP_COMMA;
+PROP_COMMA  is_name     PROP    add_prop_name;
+PROP_COMMA  is_ref      REF     add_ref;
+PROP_COMMA  is_space    NODE;
 
 PROP_EQ  default    ERROR        on_invalid_token;
 PROP_EQ  is_string  PROP_EQ_STR  add_prop_value_str;
@@ -27,13 +33,13 @@ PROP_EQ  is_number  PROP_EQ_NUM  add_prop_value_number;
 PROP_EQ_STR  default     ERROR        on_invalid_token;
 PROP_EQ_STR  is_newline  START;
 PROP_EQ_STR  is_string   PROP_EQ_STR  add_prop_value_str;
-PROP_EQ_STR  is_comma    NODE;
+PROP_EQ_STR  is_comma    PROP_COMMA;
 
 PROP_EQ_NUM  default     ERROR   on_invalid_token;
 PROP_EQ_NUM  is_newline  START;
-PROP_EQ_NUM  is_comma    NODE;
+PROP_EQ_NUM  is_comma    PROP_COMMA;
 
 REF  default     ERROR   on_invalid_token;
 REF  is_newline  START;
-REF  is_comma    NODE;
+REF  is_comma    PROP_COMMA;
 
