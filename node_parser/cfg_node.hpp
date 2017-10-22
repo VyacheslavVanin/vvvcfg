@@ -82,6 +82,11 @@ public:
         properties[name] = value;
     }
 
+    void appendToPropperty(const std::string& name, const std::string& value)
+    {
+        properties[name] += value;
+    }
+
     const std::string& getProperty(const std::string& name) const
     {
         return properties.at(name);

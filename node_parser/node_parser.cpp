@@ -101,7 +101,7 @@ void add_prop_value_str(dncfg_node_data_t* data)
     auto& current_node = data->stack.back();
     const auto& value = data->input.value;
     const auto& name = data->last_prop_name;
-    current_node->setProperty(name, value);
+    current_node->appendToPropperty(name, value);
 }
 
 void add_prop_value_number(dncfg_node_data_t* data)
