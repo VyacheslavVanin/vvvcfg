@@ -1,8 +1,14 @@
 dncfg_node dncfg_node_data_t;
 
-START  default   ERROR       on_invalid_token;
-START  is_space  setup_lvl;
-START  is_name   NODE        add_subnode;
+START  default     ERROR   on_invalid_token;
+START  is_newline  START;
+START  is_space    START_SPACE   setup_lvl;
+START  is_name     NODE    reset_lvl add_subnode;
+
+START_SPACE  default     ERROR   on_invalid_token;
+START_SPACE  is_newline  START;
+START_SPACE  is_name     NODE    add_subnode;
+
 
 NODE  default     ERROR   on_invalid_token;
 NODE  is_newline  START;

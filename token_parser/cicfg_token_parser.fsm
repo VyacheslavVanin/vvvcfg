@@ -1,7 +1,7 @@
 # vim: syntax=sh
 dncfg_token dncfg_token_data_t;
 
-BEGIN  is_space      BEGIN_SPACE  start_space_token;
+BEGIN  is_space      BEGIN_SPACE  start_space_token append_symbol;
 BEGIN  is_eol        BEGIN        inc_line_number;
 BEGIN  is_alpha      NAME         start_name_token     append_symbol;
 BEGIN  is_quote      STRING       start_string_token;
