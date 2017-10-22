@@ -248,4 +248,3 @@ TokenStream& operator>>(TokenStream& str, token_t& out)
 
     return str;
 }
-

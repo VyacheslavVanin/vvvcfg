@@ -1,14 +1,14 @@
 dncfg_node dncfg_node_data_t;
 
-START  default     ERROR   on_invalid_token;
-START  is_newline  START   inc_line_count;
-START  is_linecount START  inc_line_count;
-START  is_space    START_SPACE   setup_lvl;
-START  is_name     NODE    reset_lvl add_subnode;
+START  default       ERROR        on_invalid_token;
+START  is_newline    START        inc_line_count;
+START  is_linecount  START        inc_line_count;
+START  is_space      START_SPACE  setup_lvl;
+START  is_name       NODE         reset_lvl          add_subnode;
 
-START_SPACE  default     ERROR   on_invalid_token;
-START_SPACE  is_newline  START   inc_line_count;
-START_SPACE  is_name     NODE    add_subnode;
+START_SPACE  default     ERROR  on_invalid_token;
+START_SPACE  is_newline  START  inc_line_count;
+START_SPACE  is_name     NODE   add_subnode;
 
 
 NODE  default     ERROR   on_invalid_token;
@@ -16,37 +16,37 @@ NODE  is_newline  START   inc_line_count;
 NODE  is_name     PROP    add_prop_name;
 NODE  is_ref      REF     add_ref;
 
-PROP  default     ERROR     on_invalid_token;
-PROP  is_newline  START     inc_line_count;
-PROP  is_linecount PROP     inc_line_count;
-PROP  is_eq       PROP_EQ;
-PROP  is_comma    PROP_COMMA;
+PROP  default       ERROR        on_invalid_token;
+PROP  is_newline    START        inc_line_count;
+PROP  is_linecount  PROP         inc_line_count;
+PROP  is_eq         PROP_EQ;
+PROP  is_comma      PROP_COMMA;
 
-PROP_COMMA  default     ERROR   on_invalid_token;
-PROP_COMMA  is_newline  PROP_COMMA  inc_line_count;
-PROP_COMMA  is_linecount PROP_COMMA inc_line_count;
-PROP_COMMA  is_name     PROP    add_prop_name;
-PROP_COMMA  is_ref      REF     add_ref;
-PROP_COMMA  is_space    NODE;
+PROP_COMMA  default       ERROR       on_invalid_token;
+PROP_COMMA  is_newline    PROP_COMMA  inc_line_count;
+PROP_COMMA  is_linecount  PROP_COMMA  inc_line_count;
+PROP_COMMA  is_name       PROP        add_prop_name;
+PROP_COMMA  is_ref        REF         add_ref;
+PROP_COMMA  is_space      NODE;
 
-PROP_EQ  default    ERROR        on_invalid_token;
-PROP_EQ  is_linecount PROP_EQ  inc_line_count;
-PROP_EQ  is_string  PROP_EQ_STR  add_prop_value_str;
-PROP_EQ  is_number  PROP_EQ_NUM  add_prop_value_number;
+PROP_EQ  default       ERROR        on_invalid_token;
+PROP_EQ  is_linecount  PROP_EQ      inc_line_count;
+PROP_EQ  is_string     PROP_EQ_STR  add_prop_value_str;
+PROP_EQ  is_number     PROP_EQ_NUM  add_prop_value_number;
 
-PROP_EQ_STR  default     ERROR        on_invalid_token;
-PROP_EQ_STR  is_newline  START        inc_line_count;
-PROP_EQ_STR  is_linecount PROP_EQ_STR inc_line_count;
-PROP_EQ_STR  is_string   PROP_EQ_STR  add_prop_value_str;
-PROP_EQ_STR  is_comma    PROP_COMMA;
+PROP_EQ_STR  default       ERROR        on_invalid_token;
+PROP_EQ_STR  is_newline    START        inc_line_count;
+PROP_EQ_STR  is_linecount  PROP_EQ_STR  inc_line_count;
+PROP_EQ_STR  is_string     PROP_EQ_STR  add_prop_value_str;
+PROP_EQ_STR  is_comma      PROP_COMMA;
 
-PROP_EQ_NUM  default     ERROR   on_invalid_token;
-PROP_EQ_NUM  is_newline  START   inc_line_count;
-PROP_EQ_NUM  is_comma    PROP_COMMA;
-PROP_EQ_NUM  is_linecount PROP_EQ_NUM;
+PROP_EQ_NUM  default       ERROR         on_invalid_token;
+PROP_EQ_NUM  is_newline    START         inc_line_count;
+PROP_EQ_NUM  is_comma      PROP_COMMA;
+PROP_EQ_NUM  is_linecount  PROP_EQ_NUM;
 
-REF  default     ERROR   on_invalid_token;
-REF  is_newline  START   inc_line_count;
-REF  is_comma    PROP_COMMA;
-REF  is_linecount  REF   inc_line_count;
+REF  default       ERROR        on_invalid_token;
+REF  is_newline    START        inc_line_count;
+REF  is_comma      PROP_COMMA;
+REF  is_linecount  REF          inc_line_count;
 

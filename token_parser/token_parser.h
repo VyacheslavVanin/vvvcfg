@@ -1,8 +1,8 @@
 #pragma once
-#include <string>
-#include <vector>
 #include <iostream>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "generated/dncfg_token_fsm.h"
 
@@ -42,4 +42,3 @@ private:
     struct pImpl;
     std::unique_ptr<pImpl> pimpl;
 };
-

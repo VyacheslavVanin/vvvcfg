@@ -34,7 +34,8 @@ size_t indent_lvl(size_t spaces, size_t indent_width, size_t line)
         return 0;
     if (spaces % indent_width)
         throw std::logic_error(
-            std::string("Invalid indent on line ") + std::to_string(line) + ": "+ std::to_string(spaces) +
+            std::string("Invalid indent on line ") + std::to_string(line) +
+            ": " + std::to_string(spaces) +
             " spaces, when tab width = " + std::to_string(indent_width));
     return spaces / indent_width;
 }
