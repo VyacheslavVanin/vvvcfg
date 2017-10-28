@@ -2,7 +2,7 @@
 
 #include "cfg_node.hpp"
 #include "node_parser/generated/dncfg_node_fsm.h"
-#include "token_parser/token_parser.h"
+#include "token_parser/token_parser.hpp"
 
 struct dncfg_node_data_t {
     dncfg_node_data_t()
