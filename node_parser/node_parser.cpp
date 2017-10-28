@@ -114,6 +114,18 @@ void add_prop_value_number(dncfg_node_data_t* data)
     add_prop_value_str(data);
 }
 
+void add_value_str(dncfg_node_data_t* data)
+{
+    auto& current_node = data->stack.back();
+    const auto& value = data->input.value;
+    current_node->appendToValue(value);
+}
+
+void add_value_number(dncfg_node_data_t* data)
+{
+    add_value_str(data);
+}
+
 int dncfg_node_is_space(const dncfg_node_data_t* data)
 {
     return data->input.type == TOKEN_TYPE_SPACE;

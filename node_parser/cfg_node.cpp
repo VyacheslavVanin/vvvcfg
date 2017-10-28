@@ -154,6 +154,22 @@ CfgNode::children_it CfgNode::find_child(const std::string& name)
     return children.erase(cit, cit);
 }
 
+
+const std::string& CfgNode::getValue() const
+{
+    return value;
+}
+
+void CfgNode::setValue(const std::string& value)
+{
+    this->value = value;
+}
+
+void CfgNode::appendToValue(const std::string& value)
+{
+    this->value += value;
+}
+
 namespace {
 void print_node(std::ostream& str, const CfgNode& node, int tab_width = 4,
                 int lvl = 0)
@@ -161,6 +177,8 @@ void print_node(std::ostream& str, const CfgNode& node, int tab_width = 4,
     for (int i = 0; i < lvl * tab_width; ++i)
         str << " ";
     str << node.getName();
+    if (!node.getValue().empty())
+        str << " = \"" << node.getValue() << "\"";
     for (auto p : node) {
         str << " " << p.first;
         if (!p.second.empty())

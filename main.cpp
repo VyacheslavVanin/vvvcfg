@@ -14,7 +14,7 @@ int main(int argc, char** argv) try
     std::cout << root.getChild(std::vector<std::string>{"view", "l1", "text1"});
     std::cout << root.getChild({"view", "l1", "line1"});
     std::cout << root.getChild("view.l1.line1");
-    std::cout << root.getChild({"view", "l1", "text6"});
+    std::cout << root.getChild("aaa").getValue() << "\n";
 }
 catch (std::exception& e) {
     std::cerr << e.what() << "\n";

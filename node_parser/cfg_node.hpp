@@ -42,6 +42,10 @@ public:
     double getPropertyAsDouble(const std::string& name) const;
     long long getPropertyAsLong(const std::string& name) const;
 
+    const std::string& getValue() const;
+    void setValue(const std::string& value);
+    void appendToValue(const std::string& value);
+
     property_it begin();
     property_it end();
     property_cit begin() const;
@@ -49,6 +53,7 @@ public:
 
 private:
     std::string name;
+    std::string value;
     properties_type properties;
     children_container_type children;
 

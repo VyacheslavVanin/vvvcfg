@@ -10,11 +10,32 @@ START_SPACE  default     ERROR  on_invalid_token;
 START_SPACE  is_newline  START  inc_line_count;
 START_SPACE  is_name     NODE   add_subnode;
 
+NODE  default       ERROR     on_invalid_token;
+NODE  is_linecount  NODE      inc_line_count;
+NODE  is_newline    START     inc_line_count;
+NODE  is_name       PROP      add_prop_name;
+NODE  is_ref        REF       add_ref;
+NODE  is_eq         NODE_EQ;
 
-NODE  default     ERROR   on_invalid_token;
-NODE  is_newline  START   inc_line_count;
-NODE  is_name     PROP    add_prop_name;
-NODE  is_ref      REF     add_ref;
+NODE_EQ  default       ERROR        on_invalid_token;
+NODE_EQ  is_linecount  NODE_EQ      inc_line_count;
+NODE_EQ  is_number     NODE_VALUE   add_value_number;
+NODE_EQ  is_string     NODE_EQ_STR  add_value_str;
+
+NODE_EQ_STR  default       ERROR        on_invalid_token;
+NODE_EQ_STR  is_linecount  NODE_EQ_STR  inc_line_count;
+NODE_EQ_STR  is_string     NODE_EQ_STR  add_value_str;
+NODE_EQ_STR  is_newline    START        inc_line_count;
+NODE_EQ_STR  is_name       PROP         add_prop_name;
+NODE_EQ_STR  is_ref        REF          add_ref;
+NODE_EQ_STR  is_eq         NODE_EQ;
+
+
+NODE_VALUE  default     ERROR   on_invalid_token;
+NODE_VALUE  is_newline  START   inc_line_count;
+NODE_VALUE  is_name     PROP    add_prop_name;
+NODE_VALUE  is_ref      REF     add_ref;
+NODE_VALUE  is_eq       NODE_EQ;
 
 PROP  default       ERROR        on_invalid_token;
 PROP  is_newline    START        inc_line_count;
@@ -28,7 +49,7 @@ PROP_COMMA  is_newline    PROP_COMMA  inc_line_count;
 PROP_COMMA  is_linecount  PROP_COMMA  inc_line_count;
 PROP_COMMA  is_name       PROP        add_prop_name;
 PROP_COMMA  is_ref        REF         add_ref;
-PROP_COMMA  is_space      NODE;
+PROP_COMMA  is_space      NODE_VALUE;
 
 PROP_EQ  default       ERROR        on_invalid_token;
 PROP_EQ  is_linecount  PROP_EQ      inc_line_count;
