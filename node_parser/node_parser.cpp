@@ -98,7 +98,8 @@ void add_ref(dncfg_node_data_t* data)
     const auto& name = data->input.value;
     const auto& ref_node = data->root.getChild(name);
     auto& current_node = data->stack.back();
-    current_node->copyFrom(ref_node);
+    current_node->copyProperties(ref_node);
+    current_node->copyChildren(ref_node);
 }
 
 void add_prop_value_str(dncfg_node_data_t* data)

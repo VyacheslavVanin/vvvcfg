@@ -24,7 +24,10 @@ public:
     const std::string& getName() const;
     bool hasChild(const std::string& name) const;
     CfgNode& addChild(const std::string& name);
-    void copyFrom(const CfgNode& node);
+    void copyFull(const CfgNode& node);
+    void copyValue(const CfgNode& node);
+    void copyProperties(const CfgNode& node);
+    void copyChildren(const CfgNode& node);
 
     size_t getNumChildren() const;
     const CfgNode& getChild(size_t n) const;

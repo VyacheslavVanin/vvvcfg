@@ -1,22 +1,17 @@
 #include "cfg_node.hpp"
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <numeric>
-#include <boost/algorithm/string.hpp>
 
 CfgNode::CfgNode(const std::string& name) : name(name), properties(), children()
 {
 }
 
-CfgNode::CfgNode(const CfgNode& node)
-{
-    name = node.getName();
-    copyFrom(node);
-}
+CfgNode::CfgNode(const CfgNode& node) { copyFull(node); }
 
 CfgNode& CfgNode::operator=(const CfgNode& node)
 {
-    name = node.getName();
-    copyFrom(node);
+    copyFull(node);
     return *this;
 }
 
@@ -42,9 +37,23 @@ CfgNode& CfgNode::addChild(const std::string& name)
     return *children.back();
 }
 
-void CfgNode::copyFrom(const CfgNode& node)
+void CfgNode::copyFull(const CfgNode& node)
+{
+    name = node.getName();
+    value = node.getValue();
+    copyProperties(node);
+    copyChildren(node);
+}
+
+void CfgNode::copyValue(const CfgNode& node) { value = node.getValue(); }
+
+void CfgNode::copyProperties(const CfgNode& node)
 {
     properties.insert(node.begin(), node.end());
+}
+
+void CfgNode::copyChildren(const CfgNode& node)
+{
     for (const auto& child : node.children)
         children.push_back(std::make_unique<CfgNode>(*child.get()));
 }
@@ -69,11 +78,10 @@ const CfgNode& CfgNode::getChild(const std::string& name) const
 template <typename I>
 static std::string join(I begin, I end, const std::string& sep = ", ")
 {
-    return std::accumulate(
-        begin+1, end, std::string(*begin),
-        [&sep](std::string& res, const std::string& e) {
-            return res += sep + e; 
-        });
+    return std::accumulate(begin + 1, end, std::string(*begin),
+                           [&sep](std::string& res, const std::string& e) {
+                               return res += sep + e;
+                           });
 }
 
 const CfgNode& CfgNode::getChild(const std::vector<std::string>& names) const
@@ -84,7 +92,7 @@ const CfgNode& CfgNode::getChild(const std::vector<std::string>& names) const
         ++i;
         auto it = node->find_child(name);
         if (it == node->children.end())
-            throw std::out_of_range(join(names.begin(), names.begin()+i));
+            throw std::out_of_range(join(names.begin(), names.begin() + i));
         node = it->get();
     }
     return *node;
@@ -98,7 +106,7 @@ const CfgNode& CfgNode::getChild(std::initializer_list<std::string> list) const
         ++i;
         auto it = node->find_child(name);
         if (it == node->children.end())
-            throw std::out_of_range(join(list.begin(), list.begin()+i));
+            throw std::out_of_range(join(list.begin(), list.begin() + i));
         node = it->get();
     }
     return *node;
@@ -154,21 +162,11 @@ CfgNode::children_it CfgNode::find_child(const std::string& name)
     return children.erase(cit, cit);
 }
 
+const std::string& CfgNode::getValue() const { return value; }
 
-const std::string& CfgNode::getValue() const
-{
-    return value;
-}
+void CfgNode::setValue(const std::string& value) { this->value = value; }
 
-void CfgNode::setValue(const std::string& value)
-{
-    this->value = value;
-}
-
-void CfgNode::appendToValue(const std::string& value)
-{
-    this->value += value;
-}
+void CfgNode::appendToValue(const std::string& value) { this->value += value; }
 
 namespace {
 void print_node(std::ostream& str, const CfgNode& node, int tab_width = 4,
