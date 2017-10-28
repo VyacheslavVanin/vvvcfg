@@ -55,6 +55,7 @@ PROP_EQ  default       ERROR        on_invalid_token;
 PROP_EQ  is_linecount  PROP_EQ      inc_line_count;
 PROP_EQ  is_string     PROP_EQ_STR  add_prop_value_str;
 PROP_EQ  is_number     PROP_EQ_NUM  add_prop_value_number;
+PROP_EQ  is_ref        PROP_EQ_REF  add_prop_value_ref;
 
 PROP_EQ_STR  default       ERROR        on_invalid_token;
 PROP_EQ_STR  is_newline    START        inc_line_count;
@@ -67,6 +68,11 @@ PROP_EQ_NUM  default       ERROR         on_invalid_token;
 PROP_EQ_NUM  is_newline    START         inc_line_count;
 PROP_EQ_NUM  is_comma      PROP_COMMA;
 PROP_EQ_NUM  is_linecount  PROP_EQ_NUM;
+
+PROP_EQ_REF  default       ERROR         on_invalid_token;
+PROP_EQ_REF  is_newline    START         inc_line_count;
+PROP_EQ_REF  is_comma      PROP_COMMA;
+PROP_EQ_REF  is_linecount  PROP_EQ_REF;
 
 REF  default       ERROR        on_invalid_token;
 REF  is_newline    START        inc_line_count;

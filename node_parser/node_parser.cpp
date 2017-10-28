@@ -100,6 +100,7 @@ void add_ref(dncfg_node_data_t* data)
     auto& current_node = data->stack.back();
     current_node->copyProperties(ref_node);
     current_node->copyChildren(ref_node);
+    current_node->copyValue(ref_node);
 }
 
 void add_prop_value_str(dncfg_node_data_t* data)
@@ -113,6 +114,15 @@ void add_prop_value_str(dncfg_node_data_t* data)
 void add_prop_value_number(dncfg_node_data_t* data)
 {
     add_prop_value_str(data);
+}
+
+void add_prop_value_ref(dncfg_node_data_t* data)
+{
+    const auto& name = data->input.value;
+    const auto& ref_node = data->root.getChild(name);
+    auto& current_node = data->stack.back();
+    const auto& prop_name = data->last_prop_name;
+    current_node->appendToPropperty(prop_name, ref_node.getValue());
 }
 
 void add_value_str(dncfg_node_data_t* data)
