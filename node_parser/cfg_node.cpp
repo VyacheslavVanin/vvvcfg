@@ -1,5 +1,7 @@
 #include "cfg_node.hpp"
 #include <iostream>
+#include <numeric>
+#include <boost/algorithm/string.hpp>
 
 CfgNode::CfgNode(const std::string& name) : name(name), properties(), children()
 {
@@ -59,8 +61,47 @@ CfgNode& CfgNode::getChild(size_t n)
 
 const CfgNode& CfgNode::getChild(const std::string& name) const
 {
-    auto it = find_child(name);
-    return *it->get();
+    std::vector<std::string> names;
+    boost::split(names, name, boost::is_any_of("."));
+    return getChild(names);
+}
+
+template <typename I>
+static std::string join(I begin, I end, const std::string& sep = ", ")
+{
+    return std::accumulate(
+        begin+1, end, std::string(*begin),
+        [&sep](std::string& res, const std::string& e) {
+            return res += sep + e; 
+        });
+}
+
+const CfgNode& CfgNode::getChild(const std::vector<std::string>& names) const
+{
+    const CfgNode* node = this;
+    size_t i = 0;
+    for (const auto& name : names) {
+        ++i;
+        auto it = node->find_child(name);
+        if (it == node->children.end())
+            throw std::out_of_range(join(names.begin(), names.begin()+i));
+        node = it->get();
+    }
+    return *node;
+}
+
+const CfgNode& CfgNode::getChild(std::initializer_list<std::string> list) const
+{
+    const CfgNode* node = this;
+    size_t i = 0;
+    for (const auto& name : list) {
+        ++i;
+        auto it = node->find_child(name);
+        if (it == node->children.end())
+            throw std::out_of_range(join(list.begin(), list.begin()+i));
+        node = it->get();
+    }
+    return *node;
 }
 
 CfgNode& CfgNode::getChild(const std::string& name)

@@ -11,6 +11,10 @@ int main(int argc, char** argv) try
     CfgNode root = make_cfg(f);
 
     std::cout << root;
+    std::cout << root.getChild(std::vector<std::string>{"view", "l1", "text1"});
+    std::cout << root.getChild({"view", "l1", "line1"});
+    std::cout << root.getChild("view.l1.line1");
+    std::cout << root.getChild({"view", "l1", "text6"});
 }
 catch (std::exception& e) {
     std::cerr << e.what() << "\n";

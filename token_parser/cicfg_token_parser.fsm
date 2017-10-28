@@ -49,15 +49,16 @@ NAME  is_sharp      COMMENT   commit;
 REF_START  default   ERROR  on_error;
 REF_START  is_alpha  REF    append_symbol;
 
-REF  default       ERROR     on_error;
-REF  is_eol        SPACE     putback  commit;
-REF  is_alpha      REF       append_symbol;
-REF  is_number     REF       append_symbol;
-REF  is_space      SPACE     commit;
-REF  is_comma      SPACE     putback  commit;
-REF  is_eq         SPACE     putback  commit;
-REF  is_backslash  NEXTLINE  commit;
-REF  is_sharp      COMMENT   commit;
+REF  default       ERROR      on_error;
+REF  is_eol        SPACE      putback  commit;
+REF  is_alpha      REF        append_symbol;
+REF  is_number     REF        append_symbol;
+REF  is_dot        REF_START  append_symbol;
+REF  is_space      SPACE      commit;
+REF  is_comma      SPACE      putback  commit;
+REF  is_eq         SPACE      putback  commit;
+REF  is_backslash  NEXTLINE   commit;
+REF  is_sharp      COMMENT    commit;
 
 STRING  default       STRING       append_symbol;
 STRING  is_backslash  STRING_ESC;
