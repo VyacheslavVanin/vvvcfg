@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "node_parser/node_parser.hpp"
+#include <vvvcfg/node_parser.hpp>
 
 int main(int argc, char** argv) try
 {
