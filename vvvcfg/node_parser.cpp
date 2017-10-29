@@ -1,7 +1,7 @@
 #include "vvvcfg.hpp"
 
 #include "cfg_node.hpp"
-#include "node_parser/generated/dncfg_node_fsm.h"
+#include "vvvcfg/generated/dncfg_node_fsm.h"
 #include "token_parser/token_parser.hpp"
 
 struct dncfg_node_data_t {
