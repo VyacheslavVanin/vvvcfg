@@ -6,14 +6,14 @@ C++ library to read my text config format
 
 ### Features
 Format features:
-    - hierarchical
-    - each node can store value, properties and subnodes.
-    - referencies to other nodes to copy value or properties and subnodes
-    - comments
-    - line continuation
+- hierarchical
+- each node can store value, properties and subnodes.
+- referencies to other nodes to copy value or properties and subnodes
+- comments
+- line continuation
 
 ### Example
-```
+```shell
 # Comment line
 
 # Simple values
@@ -28,7 +28,7 @@ node1
     subnode1
         moresubnode1 = "somevalue"
         moresubnode2
-    subnode2 color = "Green"         # color is a property of subnode2
+    subnode2 color = "Green"       # color is a property of subnode2
         anothersubnode width = 10, # more properties example
                        height = 5  # continue declare props after comma
 
