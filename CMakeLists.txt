@@ -11,7 +11,10 @@ include_directories(.)
 file(GLOB_RECURSE SRCS token_parser/*.cpp token_parser/*.c
                        node_parser/*.cpp node_parser/*.c)
 file(GLOB_RECURSE HDRS *.h *.hpp)
+
 add_library(vvvcfg SHARED ${SRCS} ${HDRS})
+add_library(vvvcfg_static STATIC ${SRCS} ${HDRS})
+set_target_properties(vvvcfg_static PROPERTIES OUTPUT_NAME vvvcfg)
 
 target_link_libraries(vvvcfg)
 
@@ -19,7 +22,8 @@ target_link_libraries(vvvcfg)
 set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "..." FORCE)
 set_target_properties(vvvcfg PROPERTIES PUBLIC_HEADER
     "node_parser/vvvcfg.hpp;node_parser/cfg_node.hpp")
-INSTALL(TARGETS vvvcfg 
+INSTALL(TARGETS vvvcfg vvvcfg_static
         LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
         PUBLIC_HEADER DESTINATION include/vvvcfg
 )
