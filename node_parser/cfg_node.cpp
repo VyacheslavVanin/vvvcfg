@@ -3,6 +3,8 @@
 #include <iostream>
 #include <numeric>
 
+namespace vvv {
+
 CfgNode::CfgNode(const std::string& name) : name(name), properties(), children()
 {
 }
@@ -168,8 +170,10 @@ void CfgNode::setValue(const std::string& value) { this->value = value; }
 
 void CfgNode::appendToValue(const std::string& value) { this->value += value; }
 
+}
+
 namespace {
-void print_node(std::ostream& str, const CfgNode& node, int tab_width = 4,
+void print_node(std::ostream& str, const vvv::CfgNode& node, int tab_width = 4,
                 int lvl = 0)
 {
     for (int i = 0; i < lvl * tab_width; ++i)
@@ -189,7 +193,7 @@ void print_node(std::ostream& str, const CfgNode& node, int tab_width = 4,
 }
 }; // namespace
 
-std::ostream& operator<<(std::ostream& str, const CfgNode& node)
+std::ostream& operator<<(std::ostream& str, const vvv::CfgNode& node)
 {
     print_node(str, node);
     return str;

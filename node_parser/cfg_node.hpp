@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+namespace vvv {
+
 class CfgNode {
 public:
     using properties_type = std::map<std::string, std::string>;
@@ -64,4 +66,6 @@ private:
     children_it find_child(const std::string& name);
 };
 
-std::ostream& operator<<(std::ostream& str, const CfgNode& node);
+}
+
+std::ostream& operator<<(std::ostream& str, const vvv::CfgNode& node);

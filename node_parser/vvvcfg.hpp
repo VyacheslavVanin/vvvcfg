@@ -3,4 +3,7 @@
 
 #include "cfg_node.hpp"
 
+namespace vvv {
+
 CfgNode make_cfg(std::istream& input);
+}

@@ -15,8 +15,8 @@ struct dncfg_node_data_t {
     size_t last_lvl;
     size_t tab_width;
     size_t line_number;
-    CfgNode root;
-    std::vector<CfgNode*> stack{&root};
+    vvv::CfgNode root;
+    std::vector<vvv::CfgNode*> stack{&root};
     std::string last_prop_name;
 };
 
@@ -182,6 +182,7 @@ int dncfg_node_is_linecount(const dncfg_node_data_t* data)
     return data->input.type == TOKEN_TYPE_LINECOUNTER;
 }
 
+namespace vvv {
 CfgNode make_cfg(std::istream& input)
 {
     TokenStream ts(input);
@@ -192,4 +193,5 @@ CfgNode make_cfg(std::istream& input)
     while (ts >> data.input)
         dncfg_node_step(&ctx);
     return std::move(data.root);
+}
 }

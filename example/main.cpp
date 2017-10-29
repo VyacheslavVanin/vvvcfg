@@ -1,14 +1,14 @@
 #include <fstream>
 #include <iostream>
 
-#include <vvvcfg/node_parser.hpp>
+#include <vvvcfg/vvvcfg.hpp>
 
 int main(int argc, char** argv) try
 {
     (void)argc;
     (void)argv;
     std::ifstream f("myconfigsample.cfg");
-    CfgNode root = make_cfg(f);
+    vvv::CfgNode root = vvv::make_cfg(f);
 
     std::cout << root;
     std::cout << root.getChild(std::vector<std::string>{"view", "l1", "text1"});
