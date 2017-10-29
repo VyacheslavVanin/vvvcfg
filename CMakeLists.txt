@@ -18,7 +18,7 @@ target_link_libraries(vvvcfg)
 # Installation
 set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "..." FORCE)
 set_target_properties(vvvcfg PROPERTIES PUBLIC_HEADER
-    "node_parser/node_parser.hpp;node_parser/cfg_node.hpp")
+    "node_parser/vvvcfg.hpp;node_parser/cfg_node.hpp")
 INSTALL(TARGETS vvvcfg 
         LIBRARY DESTINATION lib
         PUBLIC_HEADER DESTINATION include/vvvcfg

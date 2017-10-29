@@ -1,4 +1,4 @@
-#include "node_parser.hpp"
+#include "vvvcfg.hpp"
 
 #include "cfg_node.hpp"
 #include "node_parser/generated/dncfg_node_fsm.h"
