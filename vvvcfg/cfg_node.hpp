@@ -12,7 +12,7 @@ public:
     using properties_type = std::map<std::string, std::string>;
     using property_it = properties_type::iterator;
     using property_cit = properties_type::const_iterator;
-    using children_container_type = std::vector<std::unique_ptr<CfgNode>>;
+    using children_container_type = std::vector<CfgNode>;
     using children_cit = children_container_type::const_iterator;
     using children_it = children_container_type::iterator;
 
@@ -43,6 +43,7 @@ public:
     void setProperty(const std::string& name, const std::string& value);
     void appendToPropperty(const std::string& name, const std::string& value);
 
+    bool hasProperty(const std::string& name) const;
     const std::string& getProperty(const std::string& name) const;
     double getPropertyAsDouble(const std::string& name) const;
     long long getPropertyAsLong(const std::string& name) const;
@@ -51,10 +52,8 @@ public:
     void setValue(const std::string& value);
     void appendToValue(const std::string& value);
 
-    property_it begin();
-    property_it end();
-    property_cit begin() const;
-    property_cit end() const;
+    const children_container_type& getChildren() const;
+    const properties_type& getProperties() const;
 
 private:
     std::string name;

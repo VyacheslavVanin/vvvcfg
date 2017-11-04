@@ -27,7 +27,7 @@ bool CfgNode::hasChild(const std::string& name) const
 {
     return std::find_if(children.begin(), children.end(),
                         [&name](const auto& child) {
-                            return name == child->getName();
+                            return name == child.getName();
                         }) != children.end();
 }
 
@@ -35,8 +35,8 @@ CfgNode& CfgNode::addChild(const std::string& name)
 {
     if (hasChild(name))
         throw std::logic_error("Dupplicate key");
-    children.push_back(std::make_unique<CfgNode>(name));
-    return *children.back();
+    children.emplace_back(name);
+    return children.back();
 }
 
 void CfgNode::copyFull(const CfgNode& node)
@@ -51,18 +51,18 @@ void CfgNode::copyValue(const CfgNode& node) { value = node.getValue(); }
 
 void CfgNode::copyProperties(const CfgNode& node)
 {
-    properties.insert(node.begin(), node.end());
+    properties.insert(node.getProperties().begin(), node.getProperties().end());
 }
 
 void CfgNode::copyChildren(const CfgNode& node)
 {
     for (const auto& child : node.children)
-        children.push_back(std::make_unique<CfgNode>(*child.get()));
+        children.push_back(child);
 }
 
 size_t CfgNode::getNumChildren() const { return children.size(); }
 
-const CfgNode& CfgNode::getChild(size_t n) const { return *children[n]; }
+const CfgNode& CfgNode::getChild(size_t n) const { return children[n]; }
 
 CfgNode& CfgNode::getChild(size_t n)
 {
@@ -95,7 +95,7 @@ const CfgNode& CfgNode::getChild(const std::vector<std::string>& names) const
         auto it = node->find_child(name);
         if (it == node->children.end())
             throw std::out_of_range(join(names.begin(), names.begin() + i));
-        node = it->get();
+        node = &*it;
     }
     return *node;
 }
@@ -109,7 +109,7 @@ const CfgNode& CfgNode::getChild(std::initializer_list<std::string> list) const
         auto it = node->find_child(name);
         if (it == node->children.end())
             throw std::out_of_range(join(list.begin(), list.begin() + i));
-        node = it->get();
+        node = &*it;
     }
     return *node;
 }
@@ -131,6 +131,11 @@ void CfgNode::appendToPropperty(const std::string& name,
     properties[name] += value;
 }
 
+bool CfgNode::hasProperty(const std::string& name) const
+{
+    return properties.find(name) != properties.end();
+}
+
 const std::string& CfgNode::getProperty(const std::string& name) const
 {
     return properties.at(name);
@@ -146,16 +151,21 @@ long long CfgNode::getPropertyAsLong(const std::string& name) const
     return std::stoll(getProperty(name));
 }
 
-CfgNode::property_it CfgNode::begin() { return properties.begin(); }
-CfgNode::property_it CfgNode::end() { return properties.end(); }
-CfgNode::property_cit CfgNode::begin() const { return properties.cbegin(); }
-CfgNode::property_cit CfgNode::end() const { return properties.cend(); }
+const CfgNode::children_container_type& CfgNode::getChildren() const
+{
+    return children;
+}
+
+const CfgNode::properties_type& CfgNode::getProperties() const
+{
+    return properties;
+}
 
 CfgNode::children_cit CfgNode::find_child(const std::string& name) const
 {
     return std::find_if(
         children.begin(), children.end(),
-        [&name](const auto& child) { return name == child->getName(); });
+        [&name](const auto& child) { return name == child.getName(); });
 }
 
 CfgNode::children_it CfgNode::find_child(const std::string& name)
@@ -181,7 +191,7 @@ void print_node(std::ostream& str, const vvv::CfgNode& node, int tab_width = 4,
     str << node.getName();
     if (!node.getValue().empty())
         str << " = \"" << node.getValue() << "\"";
-    for (auto p : node) {
+    for (auto p : node.getProperties()) {
         str << " " << p.first;
         if (!p.second.empty())
             str << " = \"" << p.second << "\"";
