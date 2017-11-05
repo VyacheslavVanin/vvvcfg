@@ -25,16 +25,14 @@ const std::string& CfgNode::getName() const { return name; }
 
 bool CfgNode::hasChild(const std::string& name) const
 {
-    return std::find_if(children.begin(), children.end(),
-                        [&name](const auto& child) {
-                            return name == child.getName();
-                        }) != children.end();
+    return find_child(name) != children.end();
 }
 
 CfgNode& CfgNode::addChild(const std::string& name)
 {
-    if (hasChild(name))
-        throw std::logic_error("Dupplicate key");
+    auto child_it = find_child(name);
+    if (child_it != children.end())
+        return *child_it;
     children.emplace_back(name);
     return children.back();
 }
