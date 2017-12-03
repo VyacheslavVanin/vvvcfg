@@ -133,6 +133,11 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             inc_line_count(data);
             break;
         }
+        if (dncfg_node_is_name(data)) {
+            add_prop_name(data);
+            ctx->state = DNCFG_NODE_PROP;
+            break;
+        }
         on_invalid_token(data);
         ctx->state = DNCFG_NODE_ERROR;
     break;

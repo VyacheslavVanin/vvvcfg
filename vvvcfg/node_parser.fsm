@@ -80,4 +80,5 @@ REF  default       ERROR        on_invalid_token;
 REF  is_newline    START        inc_line_count;
 REF  is_comma      PROP_COMMA;
 REF  is_linecount  REF          inc_line_count;
+REF  is_name       PROP         add_prop_name;
 
