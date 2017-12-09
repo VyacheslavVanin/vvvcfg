@@ -21,6 +21,25 @@ NODE_EQ  default       ERROR        on_invalid_token;
 NODE_EQ  is_linecount  NODE_EQ      inc_line_count;
 NODE_EQ  is_number     NODE_VALUE   add_value_number;
 NODE_EQ  is_string     NODE_EQ_STR  add_value_str;
+NODE_EQ  is_open_squre_br  NODE_EQ_LIST  start_list;
+NODE_EQ  is_ref            REF           add_ref;
+
+NODE_EQ_LIST  default            ERROR             on_invalid_token;
+NODE_EQ_LIST  is_linecount       NODE_EQ_LIST      inc_line_count;
+NODE_EQ_LIST  is_string          NODE_EQ_LIST_STR  append_to_list;
+NODE_EQ_LIST  is_number          NODE_EQ_LIST_NUM  append_to_list;
+NODE_EQ_LIST  is_close_squre_br  NODE;
+
+NODE_EQ_LIST_STR  default            ERROR             on_invalid_token;
+NODE_EQ_LIST_STR  is_linecount       NODE_EQ_LIST_STR  inc_line_count;
+NODE_EQ_LIST_STR  is_comma           NODE_EQ_LIST;
+NODE_EQ_LIST_STR  is_string          NODE_EQ_LIST_STR  append_to_last_in_list;
+NODE_EQ_LIST_STR  is_close_squre_br  NODE;
+
+NODE_EQ_LIST_NUM  default            ERROR              on_invalid_token;
+NODE_EQ_LIST_NUM  is_linecount       NODE_EQ_LIST_NUM;
+NODE_EQ_LIST_NUM  is_comma           NODE_EQ_LIST;
+NODE_EQ_LIST_NUM  is_close_squre_br  NODE;
 
 NODE_EQ_STR  default       ERROR        on_invalid_token;
 NODE_EQ_STR  is_linecount  NODE_EQ_STR  inc_line_count;
@@ -56,6 +75,24 @@ PROP_EQ  is_linecount  PROP_EQ      inc_line_count;
 PROP_EQ  is_string     PROP_EQ_STR  add_prop_value_str;
 PROP_EQ  is_number     PROP_EQ_NUM  add_prop_value_number;
 PROP_EQ  is_ref        PROP_EQ_REF  add_prop_value_ref;
+PROP_EQ  is_open_squre_br  PROP_EQ_LIST  start_prop_list;
+
+PROP_EQ_LIST  default            ERROR             on_invalid_token;
+PROP_EQ_LIST  is_linecount       PROP_EQ_LIST      inc_line_count;
+PROP_EQ_LIST  is_string          PROP_EQ_LIST_STR  append_to_prop_list;
+PROP_EQ_LIST  is_number          PROP_EQ_LIST_NUM  append_to_prop_list;
+PROP_EQ_LIST  is_close_squre_br  PROP;
+
+PROP_EQ_LIST_STR  default            ERROR             on_invalid_token;
+PROP_EQ_LIST_STR  is_linecount       PROP_EQ_LIST_STR  inc_line_count;
+PROP_EQ_LIST_STR  is_comma           PROP_EQ_LIST;
+PROP_EQ_LIST_STR  is_string          PROP_EQ_LIST_STR  append_to_last_in_prop_list;
+PROP_EQ_LIST_STR  is_close_squre_br  PROP;
+
+PROP_EQ_LIST_NUM  default            ERROR              on_invalid_token;
+PROP_EQ_LIST_NUM  is_linecount       PROP_EQ_LIST_NUM;
+PROP_EQ_LIST_NUM  is_comma           PROP_EQ_LIST;
+PROP_EQ_LIST_NUM  is_close_squre_br  PROP;
 
 PROP_EQ_STR  default       ERROR        on_invalid_token;
 PROP_EQ_STR  is_newline    START        inc_line_count;

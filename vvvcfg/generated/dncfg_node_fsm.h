@@ -20,15 +20,21 @@ typedef enum DNCFG_NODE_STATE {
     DNCFG_NODE_NODE_EQ,
     DNCFG_NODE_NODE_VALUE,
     DNCFG_NODE_NODE_EQ_STR,
+    DNCFG_NODE_NODE_EQ_LIST,
+    DNCFG_NODE_NODE_EQ_LIST_STR,
+    DNCFG_NODE_NODE_EQ_LIST_NUM,
     DNCFG_NODE_PROP_EQ,
     DNCFG_NODE_PROP_COMMA,
     DNCFG_NODE_PROP_EQ_STR,
     DNCFG_NODE_PROP_EQ_NUM,
-    DNCFG_NODE_PROP_EQ_REF
+    DNCFG_NODE_PROP_EQ_REF,
+    DNCFG_NODE_PROP_EQ_LIST,
+    DNCFG_NODE_PROP_EQ_LIST_STR,
+    DNCFG_NODE_PROP_EQ_LIST_NUM
 } DNCFG_NODE_STATE;
-#define DNCFG_NODE_STATE_count 14
+#define DNCFG_NODE_STATE_count 20
 
-extern const char* dncfg_node_state_names[14];
+extern const char* dncfg_node_state_names[20];
 
 
 typedef struct dncfg_node_data_t dncfg_node_data_t;
@@ -49,9 +55,15 @@ void add_prop_name(dncfg_node_data_t* data);
 void add_ref(dncfg_node_data_t* data);
 void add_value_number(dncfg_node_data_t* data);
 void add_value_str(dncfg_node_data_t* data);
+void start_list(dncfg_node_data_t* data);
+void append_to_list(dncfg_node_data_t* data);
+void append_to_last_in_list(dncfg_node_data_t* data);
 void add_prop_value_str(dncfg_node_data_t* data);
 void add_prop_value_number(dncfg_node_data_t* data);
 void add_prop_value_ref(dncfg_node_data_t* data);
+void start_prop_list(dncfg_node_data_t* data);
+void append_to_prop_list(dncfg_node_data_t* data);
+void append_to_last_in_prop_list(dncfg_node_data_t* data);
 int dncfg_node_is_newline(const dncfg_node_data_t* data);
 int dncfg_node_is_linecount(const dncfg_node_data_t* data);
 int dncfg_node_is_space(const dncfg_node_data_t* data);
@@ -60,6 +72,8 @@ int dncfg_node_is_ref(const dncfg_node_data_t* data);
 int dncfg_node_is_eq(const dncfg_node_data_t* data);
 int dncfg_node_is_number(const dncfg_node_data_t* data);
 int dncfg_node_is_string(const dncfg_node_data_t* data);
+int dncfg_node_is_open_squre_br(const dncfg_node_data_t* data);
+int dncfg_node_is_close_squre_br(const dncfg_node_data_t* data);
 int dncfg_node_is_comma(const dncfg_node_data_t* data);
 
 

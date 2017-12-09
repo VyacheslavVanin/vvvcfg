@@ -35,6 +35,8 @@ SPACE  is_comma      SPACE      start_comma  commit;
 SPACE  is_eq         SPACE      start_eq  commit;
 SPACE  is_backslash  NEXTLINE;
 SPACE  is_sharp      COMMENT;
+SPACE  is_open_square_br  SPACE  start_open_square_br  commit;
+SPACE  is_close_square_br  SPACE  start_close_square_br  commit;
 
 NAME  default       ERROR     on_error;
 NAME  is_eol        SPACE     putback  commit;
@@ -78,6 +80,8 @@ NUM  is_comma      SPACE     putback  commit;
 NUM  is_eq         SPACE     putback  commit;
 NUM  is_backslash  NEXTLINE  commit;
 NUM  is_sharp      COMMENT   commit;
+NUM  is_close_square_br  SPACE  putback  commit;
+NUM  is_open_square_br  SPACE  putback  commit;
 
 NUM_DOT  default       ERROR        on_error;
 NUM_DOT  is_eol        SPACE        putback  commit;
@@ -87,6 +91,8 @@ NUM_DOT  is_comma      SPACE        putback  commit;
 NUM_DOT  is_eq         SPACE        putback  commit;
 NUM_DOT  is_backslash  NEXTLINE     commit;
 NUM_DOT  is_sharp      COMMENT      commit;
+NUM_DOT  is_close_square_br  SPACE  putback  commit;
+NUM_DOT  is_open_square_br  SPACE  putback  commit;
 
 NUM_DOT_NUM  default       ERROR        on_error;
 NUM_DOT_NUM  is_eol        SPACE        putback  commit;
@@ -96,6 +102,8 @@ NUM_DOT_NUM  is_comma      SPACE        putback  commit;
 NUM_DOT_NUM  is_eq         SPACE        putback  commit;
 NUM_DOT_NUM  is_backslash  NEXTLINE     commit;
 NUM_DOT_NUM  is_sharp      COMMENT      commit;
+NUM_DOT_NUM  is_close_square_br  SPACE  putback  commit;
+NUM_DOT_NUM  is_open_square_br  SPACE  putback  commit;
 
 COMMENT  default  COMMENT;
 COMMENT  is_eol   BEGIN     inc_line_number  start_newline_token  commit;

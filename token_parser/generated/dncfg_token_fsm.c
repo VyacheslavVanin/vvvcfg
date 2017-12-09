@@ -247,6 +247,18 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_COMMENT;
             break;
         }
+        if (dncfg_token_is_close_square_br(data)) {
+            putback(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
+        if (dncfg_token_is_open_square_br(data)) {
+            putback(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
         on_error(data);
         ctx->state = DNCFG_TOKEN_ERROR;
     break;
@@ -308,6 +320,16 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
         }
         if (dncfg_token_is_sharp(data)) {
             ctx->state = DNCFG_TOKEN_COMMENT;
+            break;
+        }
+        if (dncfg_token_is_open_square_br(data)) {
+            start_open_square_br(data);
+            commit(data);
+            break;
+        }
+        if (dncfg_token_is_close_square_br(data)) {
+            start_close_square_br(data);
+            commit(data);
             break;
         }
         on_error(data);
@@ -438,6 +460,18 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_COMMENT;
             break;
         }
+        if (dncfg_token_is_close_square_br(data)) {
+            putback(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
+        if (dncfg_token_is_open_square_br(data)) {
+            putback(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
         on_error(data);
         ctx->state = DNCFG_TOKEN_ERROR;
     break;
@@ -477,6 +511,18 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
         if (dncfg_token_is_sharp(data)) {
             commit(data);
             ctx->state = DNCFG_TOKEN_COMMENT;
+            break;
+        }
+        if (dncfg_token_is_close_square_br(data)) {
+            putback(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
+        if (dncfg_token_is_open_square_br(data)) {
+            putback(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
             break;
         }
         on_error(data);
