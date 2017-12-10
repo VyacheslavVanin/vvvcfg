@@ -9,6 +9,7 @@ Format features:
 - hierarchical
 - each node can store value, properties and subnodes.
 - referencies to other nodes to copy value or properties and subnodes
+- lists can be used as values of nodes and properties
 - comments
 - line continuation
 
@@ -20,6 +21,7 @@ Format features:
 string_value = "Hello"
 number_value = 42
 floating_number_value = 3.14
+list_ex = [3.14, 42, "foo"]
 
 # subnodes example
 # Use indent to define child nodes
@@ -73,10 +75,18 @@ int main(int argc, char** argv) try
     std::cout << root.getChild("node.subnode.moresubnode");
 
     // Get node value
-    std::cout << root.getChild("value").getValue() << "\n";
+    std::cout << root.getChild("value").getValue().asString() << "\n";
 
     // Get property
-    std::cout << root.getChild("node_copy").getProperty("color") << "\n";
+    std::cout << root.getChild("node_copy").getProperty("color").asString() << "\n";
+
+    // List example
+    auto list = root.getChild("list_ex").getValue().asList();
+    for (const auto& s: list)
+        std::cout << s << "\n";
+    auto list2 = root.getChild("list_ex").getList();
+    for (const auto& s: list2)
+        std::cout << s << "\n";
 }
 catch (std::exception& e) {
     std::cerr << e.what() << "\n";
