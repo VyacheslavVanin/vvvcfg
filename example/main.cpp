@@ -14,12 +14,10 @@ int main(int argc, char** argv)
     std::cout << root.getChild(std::vector<std::string>{"view", "l1", "text1"});
     std::cout << root.getChild({"view", "l1", "line1"});
     std::cout << root.getChild("view.l1.line1");
-    std::cout << root.getChild("aaa").getValueAsString() << "\n";
+    std::cout << root.getChild("aaa").getValue().asString() << "\n";
+    std::cout << root.getChild("view.l1.text1").getProperty("font").asString() << "\n";
     std::cout << "\nList example\n";
-    auto list = root.getChild("list2").getList();
+    auto list = root.getChild("list_ex").getValue().asList();
     for (const auto& s: list)
-        std::cout << s << "\n";
-    auto list4 = root.getChild("list4").getList();
-    for (const auto& s: list4)
         std::cout << s << "\n";
 }
