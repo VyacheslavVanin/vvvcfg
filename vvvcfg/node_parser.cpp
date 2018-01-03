@@ -1,4 +1,5 @@
 #include "vvvcfg.hpp"
+#include <sstream>
 
 #include "cfg_node.hpp"
 #include "vvvcfg/generated/dncfg_node_fsm.h"
@@ -248,4 +249,11 @@ CfgNode make_cfg(std::istream& input)
         dncfg_node_step(&ctx);
     return std::move(data.root);
 }
+
+CfgNode make_cfg(const std::string& input)
+{
+    std::stringstream str(input);
+    return make_cfg(str);
+}
+
 }
