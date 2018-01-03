@@ -21,6 +21,12 @@ CfgNode::CfgNode(CfgNode&&) = default;
 CfgNode& CfgNode::operator=(CfgNode&&) = default;
 CfgNode::~CfgNode() = default;
 
+bool CfgNode::operator==(const CfgNode& other) const
+{
+    return name == other.name && value == other.value &&
+           properties == other.properties && children == other.children;
+}
+
 const std::string& CfgNode::getName() const { return name; }
 
 bool CfgNode::hasChild(const std::string& name) const
@@ -134,18 +140,19 @@ void CfgNode::appendToStringProperty(const std::string& name,
     properties[name].asString() += value;
 }
 
-
 void CfgNode::setProperty(const std::string& name, const value_list_type& value)
 {
     properties[name] = value;
 }
 
-void CfgNode::appendToListProperty(const std::string& name, const std::string& value)
+void CfgNode::appendToListProperty(const std::string& name,
+                                   const std::string& value)
 {
     properties[name].asList().push_back(value);
 }
 
-void CfgNode::appendToLastListProperty(const std::string& name, const std::string& value)
+void CfgNode::appendToLastListProperty(const std::string& name,
+                                       const std::string& value)
 {
     auto& list = properties[name].asList();
     if (list.empty()) {
@@ -203,10 +210,7 @@ CfgNode::children_it CfgNode::find_child(const std::string& name)
     return children.erase(cit, cit);
 }
 
-const CfgNode::value_type& CfgNode::getValue() const
-{
-    return value;
-}
+const CfgNode::value_type& CfgNode::getValue() const { return value; }
 
 void CfgNode::setValue(const CfgNode::value_type& value)
 {
@@ -289,7 +293,8 @@ void print_node(std::ostream& str, const vvv::CfgNode& node, int tab_width = 4,
                 const auto& s = p.second.asString();
                 if (s.size())
                     str << " = \"" << s << "\"";
-            } else if (p.second.isList()) {
+            }
+            else if (p.second.isList()) {
                 const auto& list = p.second.asList();
                 str << " = [" << list << "]";
             }

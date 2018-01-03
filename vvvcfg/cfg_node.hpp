@@ -12,13 +12,27 @@ class CfgNode {
 public:
 
     using value_list_type = std::vector<std::string>;
-    struct value_type : boost::variant<std::string, value_list_type>{
+    using value_type_base = boost::variant<std::string, value_list_type>;
+    struct value_type : value_type_base {
         template<typename T>
         value_type& operator=(const T& val) {
-            boost::variant<std::string, value_list_type>& t = *this;
+            value_type_base& t = *this;
             t = val;
             return *this;
         }
+
+        bool operator==(const value_type& other) const {
+            const value_type_base& v1 = *this;
+            const value_type_base& v2 = other;
+            return v1 == v2;
+        }
+
+        bool operator!=(const value_type& other) const {
+            const value_type_base& v1 = *this;
+            const value_type_base& v2 = other;
+            return v1 != v2;
+        }
+
         bool isString() const {return which() == 0;}
         bool isList() const {return which() == 1;}
         const std::string& asString() const {return boost::get<std::string>(*this);}
@@ -39,6 +53,8 @@ public:
     CfgNode(CfgNode&&);
     CfgNode& operator=(CfgNode&&);
     ~CfgNode();
+
+    bool operator==(const CfgNode& other) const;
 
     const std::string& getName() const;
     bool hasChild(const std::string& name) const;
