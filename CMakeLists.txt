@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 project(vvvcfg)
+
+enable_testing()
+
 set (CMAKE_CXX_STANDARD 14)
 
 find_package(Boost REQUIRED)
@@ -17,6 +20,9 @@ add_library(vvvcfg_static STATIC ${SRCS} ${HDRS})
 set_target_properties(vvvcfg_static PROPERTIES OUTPUT_NAME vvvcfg)
 
 target_link_libraries(vvvcfg)
+
+
+add_subdirectory(tests)
 
 # Installation
 set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "..." FORCE)
