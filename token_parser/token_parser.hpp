@@ -37,6 +37,7 @@ public:
     friend TokenStream& operator>>(TokenStream& str, token_t& out);
 
     operator bool() const;
+    TokenStream& putback(const token_t& token);
 
     ~TokenStream();
 

@@ -1,6 +1,7 @@
 #include "token_parser.hpp"
 #include <iostream>
 #include <string>
+#include <stdexcept>
 
 struct dncfg_token_data_t {
     dncfg_token_data_t(std::istream& str)
@@ -233,19 +234,31 @@ std::ostream& operator<<(std::ostream& str, const token_t& t)
 }
 
 struct TokenStream::pImpl {
-    pImpl(std::istream& str) : data(str)
+    pImpl(std::istream& str) : data(str), putback(), has_putback(false)
     {
         ctx.data = &data;
         ctx.state = DNCFG_TOKEN_BEGIN;
     }
     dncfg_token_data_t data;
     dncfg_token_ctx_t ctx;
+
+    token_t putback;
+    bool has_putback;
 };
 
 TokenStream::TokenStream(std::istream& str) { pimpl.reset(new pImpl(str)); }
 
 TokenStream::~TokenStream() = default;
 TokenStream::operator bool() const { return (bool)*pimpl->data.stream; }
+
+TokenStream& TokenStream::putback(const token_t& token)
+{
+    if (pimpl->has_putback)
+        throw std::ios_base::failure("putback failed");
+    pimpl->has_putback = true;
+    pimpl->putback = token;
+    return *this;
+}
 
 TokenStream& operator>>(TokenStream& str, token_t& out)
 {
@@ -255,6 +268,12 @@ TokenStream& operator>>(TokenStream& str, token_t& out)
     dncfg_token_data_t& data = str.pimpl->data;
     dncfg_token_ctx_t& ctx = str.pimpl->ctx;
     std::istream& stream = *data.stream;
+
+    if (str.pimpl->has_putback) {
+        str.pimpl->has_putback = false;
+        out = str.pimpl->putback;
+        return str;
+    }
 
     while (stream.get(data.current_char)) {
         dncfg_token_step(&ctx);
