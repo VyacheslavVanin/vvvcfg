@@ -4,42 +4,14 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/variant.hpp>
+#include "cfg_node_value.hpp"
 
 namespace vvv {
 
 class CfgNode {
 public:
-
     using value_list_type = std::vector<std::string>;
-    using value_type_base = boost::variant<std::string, value_list_type>;
-    struct value_type : value_type_base {
-        template<typename T>
-        value_type& operator=(const T& val) {
-            value_type_base& t = *this;
-            t = val;
-            return *this;
-        }
-
-        bool operator==(const value_type& other) const {
-            const value_type_base& v1 = *this;
-            const value_type_base& v2 = other;
-            return v1 == v2;
-        }
-
-        bool operator!=(const value_type& other) const {
-            const value_type_base& v1 = *this;
-            const value_type_base& v2 = other;
-            return v1 != v2;
-        }
-
-        bool isString() const {return which() == 0;}
-        bool isList() const {return which() == 1;}
-        const std::string& asString() const {return boost::get<std::string>(*this);}
-        std::string& asString() {return boost::get<std::string>(*this);}
-        const value_list_type& asList() const {return boost::get<value_list_type>(*this);}
-        value_list_type& asList() {return boost::get<value_list_type>(*this);}
-    };
+    using value_type = vvv::Value;
     using properties_type = std::map<std::string, value_type>;
     using property_it = properties_type::iterator;
     using property_cit = properties_type::const_iterator;
@@ -96,7 +68,7 @@ public:
     void appendToValue(const std::string& value);
 
     bool isValueList() const;
-    const value_list_type& getList() const;
+    value_list_type getList() const;
     void push_back(const std::string& value);
     void appendToLast(const std::string& value);
     void addEmptyList();

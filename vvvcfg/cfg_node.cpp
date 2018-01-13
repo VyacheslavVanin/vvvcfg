@@ -148,7 +148,7 @@ void CfgNode::setProperty(const std::string& name, const value_list_type& value)
 void CfgNode::appendToListProperty(const std::string& name,
                                    const std::string& value)
 {
-    properties[name].asList().push_back(value);
+    properties[name].asList().push_back(Value(value));
 }
 
 void CfgNode::appendToLastListProperty(const std::string& name,
@@ -156,10 +156,10 @@ void CfgNode::appendToLastListProperty(const std::string& name,
 {
     auto& list = properties[name].asList();
     if (list.empty()) {
-        list.push_back(value);
+        list.push_back(Value(value));
         return;
     }
-    list.back() += value;
+    list.back().asString() += value;
 }
 
 bool CfgNode::hasProperty(const std::string& name) const
@@ -219,9 +219,9 @@ void CfgNode::setValue(const CfgNode::value_type& value)
 
 bool CfgNode::hasValue() const { return !value.empty(); }
 
-bool CfgNode::isValueString() const { return value.which() == 0; }
+bool CfgNode::isValueString() const { return value.isString(); }
 
-bool CfgNode::isValueList() const { return value.which() == 1; }
+bool CfgNode::isValueList() const { return value.isList(); }
 
 const std::string& CfgNode::getValueAsString() const
 {
@@ -232,32 +232,32 @@ void CfgNode::setValue(const std::string& value) { this->value = value; }
 
 void CfgNode::appendToValue(const std::string& value)
 {
-    const auto type = this->value.which();
-    switch (type) {
-    case 0: this->value.asString() += value; break;
-    case 1: this->value.asList().push_back(value); break;
-    default: throw std::logic_error("Shouldn't be here");
-    }
+    if (this->value.isString())
+        this->value.asString() += value;
+    else if (this->value.isList())
+        this->value.asList().push_back(Value(value));
+    else
+        throw std::logic_error("Shouldn't be here");
 }
 
-const CfgNode::value_list_type& CfgNode::getList() const
+CfgNode::value_list_type CfgNode::getList() const
 {
-    return value.asList();
+    return value.asStringList();
 }
 
 void CfgNode::push_back(const std::string& value)
 {
-    this->value.asList().push_back(value);
+    this->value.asList().push_back(Value(value));
 }
 
 void CfgNode::appendToLast(const std::string& value)
 {
     auto& list = this->value.asList();
     if (list.empty()) {
-        list.push_back(value);
+        list.push_back(Value(value));
         return;
     }
-    list.back() += value;
+    list.back().asString() += value;
 }
 
 void CfgNode::addEmptyList() { this->value = value_list_type{}; }
@@ -273,6 +273,7 @@ std::ostream& operator<<(std::ostream& str,
     return str;
 }
 
+using ::operator<<;
 void print_node(std::ostream& str, const vvv::CfgNode& node, int tab_width = 4,
                 int lvl = 0)
 {
@@ -305,7 +306,7 @@ void print_node(std::ostream& str, const vvv::CfgNode& node, int tab_width = 4,
     for (size_t i = 0; i < node.getNumChildren(); ++i)
         print_node(str, node.getChild(i), tab_width, lvl + 1);
 }
-}; // namespace
+}
 
 std::ostream& operator<<(std::ostream& str, const vvv::CfgNode& node)
 {

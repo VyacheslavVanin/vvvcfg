@@ -26,7 +26,7 @@ float_number = 3.1415
     const auto& message_value = root.getChild("message").getValue();
     EXPECT_TRUE(message_value.isString());
     EXPECT_FALSE(message_value.isList());
-    EXPECT_ANY_THROW(message_value.asList());
+    EXPECT_ANY_THROW(message_value.asStringList());
     const auto& message = message_value.asString();
     EXPECT_EQ(message, "Hello World");
 
@@ -34,10 +34,10 @@ float_number = 3.1415
     EXPECT_FALSE(list_value.isString());
     EXPECT_TRUE(list_value.isList());
     EXPECT_ANY_THROW(list_value.asString());
-    const auto& list = list_value.asList();
+    const auto& list = list_value.asStringList();
     EXPECT_EQ(list, std::vector<std::string>());
 
-    const auto& list2 = root.getChild(2).getValue().asList();
+    const auto& list2 = root.getChild(2).getValue().asStringList();
     const auto& expected_list2 = std::vector<std::string>{"Hello", "List"};
     EXPECT_EQ(list2, expected_list2);
 
@@ -45,7 +45,7 @@ float_number = 3.1415
     EXPECT_FALSE(list3_value.isString());
     EXPECT_TRUE(list3_value.isList());
     EXPECT_ANY_THROW(list3_value.asString());
-    const auto& list3 = list3_value.asList();
+    const auto& list3 = list3_value.asStringList();
     EXPECT_EQ(list3, list2);
 
     const auto& integer = root.getChild("integer_number").getValue();
@@ -123,7 +123,7 @@ node prop1=["value", "42", 3.14], prop2=["2" "4"], prop3=[]
     const auto& prop1 = node.getProperty("prop1");
     EXPECT_TRUE(prop1.isList());
     EXPECT_FALSE(prop1.isString());
-    const auto& list1 = prop1.asList();
+    const auto& list1 = prop1.asStringList();
     EXPECT_EQ(list1.size(), 3);
     const std::vector<std::string> list1_expected = {"value", "42", "3.14"};
     EXPECT_EQ(list1, list1_expected);
@@ -131,7 +131,7 @@ node prop1=["value", "42", 3.14], prop2=["2" "4"], prop3=[]
     const auto& prop2 = node.getProperty("prop2");
     EXPECT_TRUE(prop2.isList());
     EXPECT_FALSE(prop2.isString());
-    const auto& list2 = prop2.asList();
+    const auto& list2 = prop2.asStringList();
     EXPECT_EQ(list2.size(), 1);
     const std::vector<std::string> list2_expected = {"24"};
     EXPECT_EQ(list2, list2_expected);
@@ -139,7 +139,7 @@ node prop1=["value", "42", 3.14], prop2=["2" "4"], prop3=[]
     const auto& prop3 = node.getProperty("prop3");
     EXPECT_TRUE(prop3.isList());
     EXPECT_FALSE(prop3.isString());
-    const auto& list3 = prop3.asList();
+    const auto& list3 = prop3.asStringList();
     EXPECT_TRUE(list3.empty());
 }
 
@@ -173,7 +173,7 @@ node \
     EXPECT_TRUE(node.hasProperty("value"));
     EXPECT_FALSE(node.hasProperty("missing"));
 
-    const auto& list = node.getProperty("list").asList();
+    const auto& list = node.getProperty("list").asStringList();
     const std::vector<std::string> list_expected = {"Hello World", "42"};
     EXPECT_EQ(list, list_expected);
 
@@ -207,8 +207,8 @@ node9 = $node5
     const auto& node2_value = root.getChild("node2").getValue().asString();
     EXPECT_EQ(node1_value, node2_value);
 
-    const auto& node3_value = root.getChild("node3").getValue().asList();
-    const auto& node4_value = root.getChild("node4").getValue().asList();
+    const auto& node3_value = root.getChild("node3").getValue().asStringList();
+    const auto& node4_value = root.getChild("node4").getValue().asStringList();
     EXPECT_EQ(node3_value, node4_value);
 
     const auto& node5 = root.getChild("node5");
@@ -267,7 +267,7 @@ node2
         "43");
 
     const std::vector<std::string> expected_list{"800", "600"};
-    EXPECT_EQ(root.getChild("node.subnode3").getProperty("p").asList(),
+    EXPECT_EQ(root.getChild("node.subnode3").getProperty("p").asStringList(),
               expected_list);
 
     EXPECT_EQ(&root.getChild("node.subnode1.another_level"),
