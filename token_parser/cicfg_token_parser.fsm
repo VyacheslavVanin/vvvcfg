@@ -60,6 +60,8 @@ REF  is_number     REF        append_symbol;
 REF  is_dot        REF_START  append_symbol;
 REF  is_space      SPACE      commit;
 REF  is_comma      SPACE      putback  commit;
+REF  is_open_square_br   SPACE  putback  commit;
+REF  is_close_square_br  SPACE  putback  commit;
 REF  is_eq         SPACE      putback  commit;
 REF  is_backslash  NEXTLINE   commit;
 REF  is_sharp      COMMENT    commit;

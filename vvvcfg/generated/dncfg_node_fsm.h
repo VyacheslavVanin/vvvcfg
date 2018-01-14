@@ -22,7 +22,7 @@ typedef enum DNCFG_NODE_STATE {
     DNCFG_NODE_NODE_EQ_STR,
     DNCFG_NODE_NODE_EQ_LIST,
     DNCFG_NODE_NODE_EQ_LIST_STR,
-    DNCFG_NODE_NODE_EQ_LIST_NUM,
+    DNCFG_NODE_NODE_EQ_LIST_FULL,
     DNCFG_NODE_NODE_EQ_LIST_NEXT,
     DNCFG_NODE_PROP_EQ,
     DNCFG_NODE_PROP_COMMA,
@@ -31,7 +31,7 @@ typedef enum DNCFG_NODE_STATE {
     DNCFG_NODE_PROP_EQ_REF,
     DNCFG_NODE_PROP_EQ_LIST,
     DNCFG_NODE_PROP_EQ_LIST_STR,
-    DNCFG_NODE_PROP_EQ_LIST_NUM,
+    DNCFG_NODE_PROP_EQ_LIST_FULL,
     DNCFG_NODE_PROP_EQ_LIST_NEXT
 } DNCFG_NODE_STATE;
 #define DNCFG_NODE_STATE_count 22
@@ -59,6 +59,7 @@ void add_value_number(dncfg_node_data_t* data);
 void add_value_str(dncfg_node_data_t* data);
 void start_list(dncfg_node_data_t* data);
 void append_to_list(dncfg_node_data_t* data);
+void append_ref_to_list(dncfg_node_data_t* data);
 void push_list_to_value_stack(dncfg_node_data_t* data);
 void pop_value_stack(dncfg_node_data_t* data);
 void clear_value_stack(dncfg_node_data_t* data);

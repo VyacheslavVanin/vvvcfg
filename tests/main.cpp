@@ -152,6 +152,21 @@ node2 = ["111", "222", "333"]
     EXPECT_EQ(node.getValue(), node2.getValue());
 }
 
+GTEST_TEST(vvvcfg, nested_value_ref)
+{
+    const auto input = R"(
+node  = "text"
+node1 = "other"
+node2 = [$node, $node1, [$node1, $node], "333"]
+node3 = ["text", "other", ["other", "text"], "333"]
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node2 = root.getChild("node2");
+    const auto& node3 = root.getChild("node3");
+    EXPECT_EQ(node2.getValue(), node3.getValue());
+}
+
 GTEST_TEST(vvvcfg, string_properties)
 {
     const auto input = R"(
@@ -262,6 +277,21 @@ node prop1=[[]],
     EXPECT_TRUE(list2_1.isList());
     const std::vector<std::string> expected {"42", "3.1415"};
     EXPECT_EQ(list2_1.asStringList(), expected);
+}
+
+GTEST_TEST(vvvcfg, ref_in_properties_lists)
+{
+    const auto input = R"(
+node  = "text"
+node1 = "other"
+node2 prop=[$node, $node1, [$node1, $node], "333"]
+node3 prop=["text", "other", ["other", "text"], "333"]
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node2 = root.getChild("node2");
+    const auto& node3 = root.getChild("node3");
+    EXPECT_EQ(node2.getValue(), node3.getValue());
 }
 
 GTEST_TEST(vvvcfg, linecontinuation)

@@ -17,7 +17,7 @@ const char* dncfg_node_state_names[] = {
     "NODE_EQ_STR",
     "NODE_EQ_LIST",
     "NODE_EQ_LIST_STR",
-    "NODE_EQ_LIST_NUM",
+    "NODE_EQ_LIST_FULL",
     "NODE_EQ_LIST_NEXT",
     "PROP_EQ",
     "PROP_COMMA",
@@ -26,7 +26,7 @@ const char* dncfg_node_state_names[] = {
     "PROP_EQ_REF",
     "PROP_EQ_LIST",
     "PROP_EQ_LIST_STR",
-    "PROP_EQ_LIST_NUM",
+    "PROP_EQ_LIST_FULL",
     "PROP_EQ_LIST_NEXT"
 };
 
@@ -250,7 +250,12 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         }
         if (dncfg_node_is_number(data)) {
             append_to_list(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_NUM;
+            ctx->state = DNCFG_NODE_NODE_EQ_LIST_FULL;
+            break;
+        }
+        if (dncfg_node_is_ref(data)) {
+            append_ref_to_list(data);
+            ctx->state = DNCFG_NODE_NODE_EQ_LIST_FULL;
             break;
         }
         if (dncfg_node_is_open_squre_br(data)) {
@@ -303,7 +308,7 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         on_invalid_token(data);
         ctx->state = DNCFG_NODE_ERROR;
     break;
-    case DNCFG_NODE_NODE_EQ_LIST_NUM: 
+    case DNCFG_NODE_NODE_EQ_LIST_FULL: 
         if (dncfg_node_is_linecount(data)) {
             inc_line_count(data);
             break;
@@ -355,7 +360,7 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         }
         if (dncfg_node_is_number(data)) {
             append_to_list(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_NUM;
+            ctx->state = DNCFG_NODE_NODE_EQ_LIST_FULL;
             break;
         }
         if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
@@ -511,7 +516,12 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         }
         if (dncfg_node_is_number(data)) {
             append_to_list(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_NUM;
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST_FULL;
+            break;
+        }
+        if (dncfg_node_is_ref(data)) {
+            append_ref_to_list(data);
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST_FULL;
             break;
         }
         if (dncfg_node_is_open_squre_br(data)) {
@@ -564,7 +574,7 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         on_invalid_token(data);
         ctx->state = DNCFG_NODE_ERROR;
     break;
-    case DNCFG_NODE_PROP_EQ_LIST_NUM: 
+    case DNCFG_NODE_PROP_EQ_LIST_FULL: 
         if (dncfg_node_is_linecount(data)) {
             inc_line_count(data);
             break;
@@ -616,7 +626,12 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         }
         if (dncfg_node_is_number(data)) {
             append_to_list(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_NUM;
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST_FULL;
+            break;
+        }
+        if (dncfg_node_is_ref(data)) {
+            append_ref_to_list(data);
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST_FULL;
             break;
         }
         if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {

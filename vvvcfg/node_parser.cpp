@@ -146,6 +146,17 @@ void append_to_list(dncfg_node_data_t* data)
     last_value_list.push_back(Value(data->input.value));
 }
 
+void append_ref_to_list(dncfg_node_data_t* data)
+{
+    using Value = vvv::CfgNode::value_type;
+    const auto& name = data->input.value;
+    const auto& ref_node = data->root.getChild(name);
+    auto& value_stack = data->value_stack;
+    auto* last_value = value_stack.back();
+    auto& last_value_list = last_value->asList();
+    last_value_list.push_back(ref_node.getValue());
+}
+
 void start_list(dncfg_node_data_t* data)
 {
     auto& current_node = data->node_stack.back();

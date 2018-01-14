@@ -401,6 +401,18 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_SPACE;
             break;
         }
+        if (dncfg_token_is_open_square_br(data)) {
+            putback(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
+        if (dncfg_token_is_close_square_br(data)) {
+            putback(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
         if (dncfg_token_is_eq(data)) {
             putback(data);
             commit(data);
