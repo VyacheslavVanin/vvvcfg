@@ -172,6 +172,11 @@ const CfgNode::value_type& CfgNode::getProperty(const std::string& name) const
     return properties.at(name);
 }
 
+CfgNode::value_type& CfgNode::getProperty(const std::string& name)
+{
+    return properties.at(name);
+}
+
 const std::string& CfgNode::getPropertyAsString(const std::string& name) const
 {
     return getProperty(name).asString();
@@ -211,6 +216,7 @@ CfgNode::children_it CfgNode::find_child(const std::string& name)
 }
 
 const CfgNode::value_type& CfgNode::getValue() const { return value; }
+CfgNode::value_type& CfgNode::getValue() { return value; }
 
 void CfgNode::setValue(const CfgNode::value_type& value)
 {
@@ -260,7 +266,7 @@ void CfgNode::appendToLast(const std::string& value)
     list.back().asString() += value;
 }
 
-void CfgNode::addEmptyList() { this->value = value_list_type{}; }
+void CfgNode::addEmptyList() { this->value = Value(Value::DATA_TYPE::LIST); }
 
 } // namespace vvv
 

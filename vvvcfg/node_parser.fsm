@@ -1,3 +1,4 @@
+# vim: syntax=sh
 dncfg_node dncfg_node_data_t;
 
 START  default       ERROR        on_invalid_token;
@@ -17,29 +18,49 @@ NODE  is_name       PROP      add_prop_name;
 NODE  is_ref        REF       add_ref;
 NODE  is_eq         NODE_EQ;
 
-NODE_EQ  default       ERROR        on_invalid_token;
-NODE_EQ  is_linecount  NODE_EQ      inc_line_count;
-NODE_EQ  is_number     NODE_VALUE   add_value_number;
-NODE_EQ  is_string     NODE_EQ_STR  add_value_str;
+NODE_EQ  default           ERROR         on_invalid_token;
+NODE_EQ  is_linecount      NODE_EQ       inc_line_count;
+NODE_EQ  is_number         NODE_VALUE    add_value_number;
+NODE_EQ  is_string         NODE_EQ_STR   add_value_str;
 NODE_EQ  is_open_squre_br  NODE_EQ_LIST  start_list;
 NODE_EQ  is_ref            REF           add_ref;
 
-NODE_EQ_LIST  default            ERROR             on_invalid_token;
-NODE_EQ_LIST  is_linecount       NODE_EQ_LIST      inc_line_count;
-NODE_EQ_LIST  is_string          NODE_EQ_LIST_STR  append_to_list;
-NODE_EQ_LIST  is_number          NODE_EQ_LIST_NUM  append_to_list;
-NODE_EQ_LIST  is_close_squre_br  NODE;
+NODE_EQ_LIST  default                    ERROR              on_invalid_token;
+NODE_EQ_LIST  is_linecount               NODE_EQ_LIST       inc_line_count;
+NODE_EQ_LIST  is_newline                 NODE_EQ_LIST       inc_line_count;
+NODE_EQ_LIST  is_space                   NODE_EQ_LIST;
+NODE_EQ_LIST  is_string                  NODE_EQ_LIST_STR   append_to_list;
+NODE_EQ_LIST  is_number                  NODE_EQ_LIST_NUM   append_to_list;
+NODE_EQ_LIST  is_open_squre_br           NODE_EQ_LIST       push_list_to_value_stack;
+NODE_EQ_LIST  is_close_squre_br_lvl_ne0  NODE_EQ_LIST_NEXT  pop_value_stack;
+NODE_EQ_LIST  is_close_squre_br_lvl_e0   NODE               clear_value_stack;
 
-NODE_EQ_LIST_STR  default            ERROR             on_invalid_token;
-NODE_EQ_LIST_STR  is_linecount       NODE_EQ_LIST_STR  inc_line_count;
-NODE_EQ_LIST_STR  is_comma           NODE_EQ_LIST;
-NODE_EQ_LIST_STR  is_string          NODE_EQ_LIST_STR  append_to_last_in_list;
-NODE_EQ_LIST_STR  is_close_squre_br  NODE;
+NODE_EQ_LIST_NEXT  default                    ERROR              on_invalid_token;
+NODE_EQ_LIST_NEXT  is_linecount               NODE_EQ_LIST_NEXT  inc_line_count;
+NODE_EQ_LIST_NEXT  is_newline                 NODE_EQ_LIST_NEXT  inc_line_count;
+NODE_EQ_LIST_NEXT  is_space                   NODE_EQ_LIST_NEXT;
+NODE_EQ_LIST_NEXT  is_comma                   NODE_EQ_LIST;
+NODE_EQ_LIST_NEXT  is_string                  NODE_EQ_LIST_STR   append_to_list;
+NODE_EQ_LIST_NEXT  is_number                  NODE_EQ_LIST_NUM   append_to_list;
+NODE_EQ_LIST_NEXT  is_close_squre_br_lvl_ne0  NODE_EQ_LIST_NEXT  pop_value_stack;
+NODE_EQ_LIST_NEXT  is_close_squre_br_lvl_e0   NODE               clear_value_stack;
 
-NODE_EQ_LIST_NUM  default            ERROR              on_invalid_token;
-NODE_EQ_LIST_NUM  is_linecount       NODE_EQ_LIST_NUM;
-NODE_EQ_LIST_NUM  is_comma           NODE_EQ_LIST;
-NODE_EQ_LIST_NUM  is_close_squre_br  NODE;
+NODE_EQ_LIST_STR  default                    ERROR              on_invalid_token;
+NODE_EQ_LIST_STR  is_linecount               NODE_EQ_LIST_STR   inc_line_count;
+NODE_EQ_LIST_STR  is_newline                 NODE_EQ_LIST_STR   inc_line_count;
+NODE_EQ_LIST_STR  is_space                   NODE_EQ_LIST_STR;
+NODE_EQ_LIST_STR  is_comma                   NODE_EQ_LIST;
+NODE_EQ_LIST_STR  is_string                  NODE_EQ_LIST_STR   append_to_last_in_list;
+NODE_EQ_LIST_STR  is_close_squre_br_lvl_ne0  NODE_EQ_LIST_NEXT  pop_value_stack;
+NODE_EQ_LIST_STR  is_close_squre_br_lvl_e0   NODE               clear_value_stack;
+
+NODE_EQ_LIST_NUM  default                    ERROR              on_invalid_token;
+NODE_EQ_LIST_NUM  is_linecount               NODE_EQ_LIST_NUM   inc_line_count;
+NODE_EQ_LIST_NUM  is_newline                 NODE_EQ_LIST_NUM   inc_line_count;
+NODE_EQ_LIST_NUM  is_space                   NODE_EQ_LIST_NUM;
+NODE_EQ_LIST_NUM  is_comma                   NODE_EQ_LIST;
+NODE_EQ_LIST_NUM  is_close_squre_br_lvl_ne0  NODE_EQ_LIST_NEXT  pop_value_stack;
+NODE_EQ_LIST_NUM  is_close_squre_br_lvl_e0   NODE               clear_value_stack;
 
 NODE_EQ_STR  default       ERROR        on_invalid_token;
 NODE_EQ_STR  is_linecount  NODE_EQ_STR  inc_line_count;
@@ -50,10 +71,10 @@ NODE_EQ_STR  is_ref        REF          add_ref;
 NODE_EQ_STR  is_eq         NODE_EQ;
 
 
-NODE_VALUE  default     ERROR   on_invalid_token;
-NODE_VALUE  is_newline  START   inc_line_count;
-NODE_VALUE  is_name     PROP    add_prop_name;
-NODE_VALUE  is_ref      REF     add_ref;
+NODE_VALUE  default     ERROR     on_invalid_token;
+NODE_VALUE  is_newline  START     inc_line_count;
+NODE_VALUE  is_name     PROP      add_prop_name;
+NODE_VALUE  is_ref      REF       add_ref;
 NODE_VALUE  is_eq       NODE_EQ;
 
 PROP  default       ERROR        on_invalid_token;
@@ -77,22 +98,42 @@ PROP_EQ  is_number     PROP_EQ_NUM  add_prop_value_number;
 PROP_EQ  is_ref        PROP_EQ_REF  add_prop_value_ref;
 PROP_EQ  is_open_squre_br  PROP_EQ_LIST  start_prop_list;
 
-PROP_EQ_LIST  default            ERROR             on_invalid_token;
-PROP_EQ_LIST  is_linecount       PROP_EQ_LIST      inc_line_count;
-PROP_EQ_LIST  is_string          PROP_EQ_LIST_STR  append_to_prop_list;
-PROP_EQ_LIST  is_number          PROP_EQ_LIST_NUM  append_to_prop_list;
-PROP_EQ_LIST  is_close_squre_br  PROP;
+PROP_EQ_LIST  default                    ERROR              on_invalid_token;
+PROP_EQ_LIST  is_linecount               PROP_EQ_LIST       inc_line_count;
+PROP_EQ_LIST  is_newline                 PROP_EQ_LIST       inc_line_count;
+PROP_EQ_LIST  is_space                   PROP_EQ_LIST;
+PROP_EQ_LIST  is_string                  PROP_EQ_LIST_STR   append_to_list;
+PROP_EQ_LIST  is_number                  PROP_EQ_LIST_NUM   append_to_list;
+PROP_EQ_LIST  is_open_squre_br           PROP_EQ_LIST       push_list_to_value_stack;
+PROP_EQ_LIST  is_close_squre_br_lvl_ne0  PROP_EQ_LIST_NEXT  pop_value_stack;
+PROP_EQ_LIST  is_close_squre_br_lvl_e0   PROP               clear_value_stack;
 
-PROP_EQ_LIST_STR  default            ERROR             on_invalid_token;
-PROP_EQ_LIST_STR  is_linecount       PROP_EQ_LIST_STR  inc_line_count;
-PROP_EQ_LIST_STR  is_comma           PROP_EQ_LIST;
-PROP_EQ_LIST_STR  is_string          PROP_EQ_LIST_STR  append_to_last_in_prop_list;
-PROP_EQ_LIST_STR  is_close_squre_br  PROP;
+PROP_EQ_LIST_NEXT  default                    ERROR              on_invalid_token;
+PROP_EQ_LIST_NEXT  is_linecount               PROP_EQ_LIST_NEXT       inc_line_count;
+PROP_EQ_LIST_NEXT  is_newline                 PROP_EQ_LIST_NEXT       inc_line_count;
+PROP_EQ_LIST_NEXT  is_space                   PROP_EQ_LIST_NEXT;
+PROP_EQ_LIST_NEXT  is_comma                   PROP_EQ_LIST;
+PROP_EQ_LIST_NEXT  is_string                  PROP_EQ_LIST_STR   append_to_list;
+PROP_EQ_LIST_NEXT  is_number                  PROP_EQ_LIST_NUM   append_to_list;
+PROP_EQ_LIST_NEXT  is_close_squre_br_lvl_ne0  PROP_EQ_LIST_NEXT  pop_value_stack;
+PROP_EQ_LIST_NEXT  is_close_squre_br_lvl_e0   PROP               clear_value_stack;
 
-PROP_EQ_LIST_NUM  default            ERROR              on_invalid_token;
-PROP_EQ_LIST_NUM  is_linecount       PROP_EQ_LIST_NUM;
-PROP_EQ_LIST_NUM  is_comma           PROP_EQ_LIST;
-PROP_EQ_LIST_NUM  is_close_squre_br  PROP;
+PROP_EQ_LIST_STR  default                    ERROR              on_invalid_token;
+PROP_EQ_LIST_STR  is_linecount               PROP_EQ_LIST_STR   inc_line_count;
+PROP_EQ_LIST_STR  is_newline                 PROP_EQ_LIST_STR   inc_line_count;
+PROP_EQ_LIST_STR  is_space                   PROP_EQ_LIST_STR;
+PROP_EQ_LIST_STR  is_comma                   PROP_EQ_LIST;
+PROP_EQ_LIST_STR  is_string                  PROP_EQ_LIST_STR   append_to_last_in_prop_list;
+PROP_EQ_LIST_STR  is_close_squre_br_lvl_ne0  PROP_EQ_LIST_NEXT  pop_value_stack;
+PROP_EQ_LIST_STR  is_close_squre_br_lvl_e0   PROP               clear_value_stack;
+
+PROP_EQ_LIST_NUM  default                    ERROR              on_invalid_token;
+PROP_EQ_LIST_NUM  is_linecount               PROP_EQ_LIST_NUM   inc_line_count;
+PROP_EQ_LIST_NUM  is_newline                 PROP_EQ_LIST_NUM   inc_line_count;
+PROP_EQ_LIST_NUM  is_space                   PROP_EQ_LIST_NUM;
+PROP_EQ_LIST_NUM  is_comma                   PROP_EQ_LIST;
+PROP_EQ_LIST_NUM  is_close_squre_br_lvl_ne0  PROP_EQ_LIST_NEXT  pop_value_stack;
+PROP_EQ_LIST_NUM  is_close_squre_br_lvl_e0   PROP               clear_value_stack;
 
 PROP_EQ_STR  default       ERROR        on_invalid_token;
 PROP_EQ_STR  is_newline    START        inc_line_count;

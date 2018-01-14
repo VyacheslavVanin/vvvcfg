@@ -54,12 +54,14 @@ public:
 
     bool hasProperty(const std::string& name) const;
     const value_type& getProperty(const std::string& name) const;
+    value_type& getProperty(const std::string& name);
     const std::string& getPropertyAsString(const std::string& name) const;
     double getPropertyAsDouble(const std::string& name) const;
     long long getPropertyAsLong(const std::string& name) const;
 
     bool hasValue() const;
     const value_type& getValue() const;
+    value_type& getValue();
     void setValue(const value_type& value);
 
     bool isValueString() const;

@@ -23,6 +23,7 @@ typedef enum DNCFG_NODE_STATE {
     DNCFG_NODE_NODE_EQ_LIST,
     DNCFG_NODE_NODE_EQ_LIST_STR,
     DNCFG_NODE_NODE_EQ_LIST_NUM,
+    DNCFG_NODE_NODE_EQ_LIST_NEXT,
     DNCFG_NODE_PROP_EQ,
     DNCFG_NODE_PROP_COMMA,
     DNCFG_NODE_PROP_EQ_STR,
@@ -30,11 +31,12 @@ typedef enum DNCFG_NODE_STATE {
     DNCFG_NODE_PROP_EQ_REF,
     DNCFG_NODE_PROP_EQ_LIST,
     DNCFG_NODE_PROP_EQ_LIST_STR,
-    DNCFG_NODE_PROP_EQ_LIST_NUM
+    DNCFG_NODE_PROP_EQ_LIST_NUM,
+    DNCFG_NODE_PROP_EQ_LIST_NEXT
 } DNCFG_NODE_STATE;
-#define DNCFG_NODE_STATE_count 20
+#define DNCFG_NODE_STATE_count 22
 
-extern const char* dncfg_node_state_names[20];
+extern const char* dncfg_node_state_names[22];
 
 
 typedef struct dncfg_node_data_t dncfg_node_data_t;
@@ -57,12 +59,14 @@ void add_value_number(dncfg_node_data_t* data);
 void add_value_str(dncfg_node_data_t* data);
 void start_list(dncfg_node_data_t* data);
 void append_to_list(dncfg_node_data_t* data);
+void push_list_to_value_stack(dncfg_node_data_t* data);
+void pop_value_stack(dncfg_node_data_t* data);
+void clear_value_stack(dncfg_node_data_t* data);
 void append_to_last_in_list(dncfg_node_data_t* data);
 void add_prop_value_str(dncfg_node_data_t* data);
 void add_prop_value_number(dncfg_node_data_t* data);
 void add_prop_value_ref(dncfg_node_data_t* data);
 void start_prop_list(dncfg_node_data_t* data);
-void append_to_prop_list(dncfg_node_data_t* data);
 void append_to_last_in_prop_list(dncfg_node_data_t* data);
 int dncfg_node_is_newline(const dncfg_node_data_t* data);
 int dncfg_node_is_linecount(const dncfg_node_data_t* data);
@@ -73,7 +77,8 @@ int dncfg_node_is_eq(const dncfg_node_data_t* data);
 int dncfg_node_is_number(const dncfg_node_data_t* data);
 int dncfg_node_is_string(const dncfg_node_data_t* data);
 int dncfg_node_is_open_squre_br(const dncfg_node_data_t* data);
-int dncfg_node_is_close_squre_br(const dncfg_node_data_t* data);
+int dncfg_node_is_close_squre_br_lvl_ne0(const dncfg_node_data_t* data);
+int dncfg_node_is_close_squre_br_lvl_e0(const dncfg_node_data_t* data);
 int dncfg_node_is_comma(const dncfg_node_data_t* data);
 
 

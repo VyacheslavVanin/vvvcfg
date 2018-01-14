@@ -18,6 +18,7 @@ const char* dncfg_node_state_names[] = {
     "NODE_EQ_LIST",
     "NODE_EQ_LIST_STR",
     "NODE_EQ_LIST_NUM",
+    "NODE_EQ_LIST_NEXT",
     "PROP_EQ",
     "PROP_COMMA",
     "PROP_EQ_STR",
@@ -25,7 +26,8 @@ const char* dncfg_node_state_names[] = {
     "PROP_EQ_REF",
     "PROP_EQ_LIST",
     "PROP_EQ_LIST_STR",
-    "PROP_EQ_LIST_NUM"
+    "PROP_EQ_LIST_NUM",
+    "PROP_EQ_LIST_NEXT"
 };
 
 void dncfg_node_step(dncfg_node_ctx_t* ctx)
@@ -234,6 +236,13 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             inc_line_count(data);
             break;
         }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
+            break;
+        }
         if (dncfg_node_is_string(data)) {
             append_to_list(data);
             ctx->state = DNCFG_NODE_NODE_EQ_LIST_STR;
@@ -244,7 +253,17 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             ctx->state = DNCFG_NODE_NODE_EQ_LIST_NUM;
             break;
         }
-        if (dncfg_node_is_close_squre_br(data)) {
+        if (dncfg_node_is_open_squre_br(data)) {
+            push_list_to_value_stack(data);
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_NODE_EQ_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
+            clear_value_stack(data);
             ctx->state = DNCFG_NODE_NODE;
             break;
         }
@@ -256,6 +275,13 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             inc_line_count(data);
             break;
         }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
+            break;
+        }
         if (dncfg_node_is_comma(data)) {
             ctx->state = DNCFG_NODE_NODE_EQ_LIST;
             break;
@@ -264,7 +290,13 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             append_to_last_in_list(data);
             break;
         }
-        if (dncfg_node_is_close_squre_br(data)) {
+        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_NODE_EQ_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
+            clear_value_stack(data);
             ctx->state = DNCFG_NODE_NODE;
             break;
         }
@@ -273,13 +305,65 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
     break;
     case DNCFG_NODE_NODE_EQ_LIST_NUM: 
         if (dncfg_node_is_linecount(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
             break;
         }
         if (dncfg_node_is_comma(data)) {
             ctx->state = DNCFG_NODE_NODE_EQ_LIST;
             break;
         }
-        if (dncfg_node_is_close_squre_br(data)) {
+        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_NODE_EQ_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
+            clear_value_stack(data);
+            ctx->state = DNCFG_NODE_NODE;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_NODE_EQ_LIST_NEXT: 
+        if (dncfg_node_is_linecount(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
+            break;
+        }
+        if (dncfg_node_is_comma(data)) {
+            ctx->state = DNCFG_NODE_NODE_EQ_LIST;
+            break;
+        }
+        if (dncfg_node_is_string(data)) {
+            append_to_list(data);
+            ctx->state = DNCFG_NODE_NODE_EQ_LIST_STR;
+            break;
+        }
+        if (dncfg_node_is_number(data)) {
+            append_to_list(data);
+            ctx->state = DNCFG_NODE_NODE_EQ_LIST_NUM;
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+            pop_value_stack(data);
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
+            clear_value_stack(data);
             ctx->state = DNCFG_NODE_NODE;
             break;
         }
@@ -413,17 +497,34 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             inc_line_count(data);
             break;
         }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
+            break;
+        }
         if (dncfg_node_is_string(data)) {
-            append_to_prop_list(data);
+            append_to_list(data);
             ctx->state = DNCFG_NODE_PROP_EQ_LIST_STR;
             break;
         }
         if (dncfg_node_is_number(data)) {
-            append_to_prop_list(data);
+            append_to_list(data);
             ctx->state = DNCFG_NODE_PROP_EQ_LIST_NUM;
             break;
         }
-        if (dncfg_node_is_close_squre_br(data)) {
+        if (dncfg_node_is_open_squre_br(data)) {
+            push_list_to_value_stack(data);
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
+            clear_value_stack(data);
             ctx->state = DNCFG_NODE_PROP;
             break;
         }
@@ -435,6 +536,13 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             inc_line_count(data);
             break;
         }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
+            break;
+        }
         if (dncfg_node_is_comma(data)) {
             ctx->state = DNCFG_NODE_PROP_EQ_LIST;
             break;
@@ -443,7 +551,13 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             append_to_last_in_prop_list(data);
             break;
         }
-        if (dncfg_node_is_close_squre_br(data)) {
+        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
+            clear_value_stack(data);
             ctx->state = DNCFG_NODE_PROP;
             break;
         }
@@ -452,13 +566,65 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
     break;
     case DNCFG_NODE_PROP_EQ_LIST_NUM: 
         if (dncfg_node_is_linecount(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
             break;
         }
         if (dncfg_node_is_comma(data)) {
             ctx->state = DNCFG_NODE_PROP_EQ_LIST;
             break;
         }
-        if (dncfg_node_is_close_squre_br(data)) {
+        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
+            clear_value_stack(data);
+            ctx->state = DNCFG_NODE_PROP;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_PROP_EQ_LIST_NEXT: 
+        if (dncfg_node_is_linecount(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
+            break;
+        }
+        if (dncfg_node_is_comma(data)) {
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST;
+            break;
+        }
+        if (dncfg_node_is_string(data)) {
+            append_to_list(data);
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST_STR;
+            break;
+        }
+        if (dncfg_node_is_number(data)) {
+            append_to_list(data);
+            ctx->state = DNCFG_NODE_PROP_EQ_LIST_NUM;
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+            pop_value_stack(data);
+            break;
+        }
+        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
+            clear_value_stack(data);
             ctx->state = DNCFG_NODE_PROP;
             break;
         }
@@ -466,4 +632,5 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         ctx->state = DNCFG_NODE_ERROR;
     break;
     }
+
 }

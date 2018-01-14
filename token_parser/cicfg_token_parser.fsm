@@ -21,6 +21,8 @@ BEGIN_SPACE  is_number     SPACE        putback  commit;
 BEGIN_SPACE  is_dollar     SPACE        putback  commit;
 BEGIN_SPACE  is_comma      SPACE        putback  commit;
 BEGIN_SPACE  is_eq         SPACE        putback  commit;
+BEGIN_SPACE  is_close_square_br SPACE    putback  commit;
+BEGIN_SPACE  is_open_square_br SPACE    putback  commit;
 BEGIN_SPACE  is_backslash  NEXTLINE;
 BEGIN_SPACE  is_sharp      COMMENT;
 

@@ -2,12 +2,13 @@
 #include <sstream>
 
 #include "cfg_node.hpp"
-#include "vvvcfg/generated/dncfg_node_fsm.h"
 #include "token_parser/token_parser.hpp"
+#include "vvvcfg/generated/dncfg_node_fsm.h"
 
 struct dncfg_node_data_t {
     dncfg_node_data_t()
-        : last_lvl(0), tab_width(0), line_number(1), root("root"), stack{&root}
+        : last_lvl(0), tab_width(0), line_number(1),
+          root("root"), node_stack{&root}
     {
     }
 
@@ -17,7 +18,8 @@ struct dncfg_node_data_t {
     size_t tab_width;
     size_t line_number;
     vvv::CfgNode root;
-    std::vector<vvv::CfgNode*> stack{&root};
+    std::vector<vvv::CfgNode*> node_stack{&root};
+    std::vector<vvv::CfgNode::value_type*> value_stack;
     std::string last_prop_name;
 };
 
@@ -46,7 +48,7 @@ void setup_lvl(dncfg_node_data_t* data)
 {
     auto& tab_width = data->tab_width;
     auto& last_lvl = data->last_lvl;
-    auto& stack = data->stack;
+    auto& stack = data->node_stack;
 
     const auto spaces = count_spaces(data->input.value);
     tab_width = tab_width ? tab_width : spaces;
@@ -62,7 +64,7 @@ void setup_lvl(dncfg_node_data_t* data)
 void reset_lvl(dncfg_node_data_t* data)
 {
     data->last_lvl = 0;
-    data->stack.resize(1);
+    data->node_stack.resize(1);
 }
 
 void inc_line_count(dncfg_node_data_t* data) { data->line_number++; }
@@ -79,7 +81,7 @@ void on_invalid_token(dncfg_node_data_t* data)
 
 void add_subnode(dncfg_node_data_t* data)
 {
-    auto& stack = data->stack;
+    auto& stack = data->node_stack;
     const auto lvl = data->last_lvl;
     const auto& name = data->input.value;
     auto& newNode = stack[lvl]->addChild(name);
@@ -88,7 +90,7 @@ void add_subnode(dncfg_node_data_t* data)
 
 void add_prop_name(dncfg_node_data_t* data)
 {
-    auto& stack = data->stack;
+    auto& stack = data->node_stack;
     const auto& prop_name = data->input.value;
     stack.back()->setProperty(prop_name, "");
     data->last_prop_name = prop_name;
@@ -98,7 +100,7 @@ void add_ref(dncfg_node_data_t* data)
 {
     const auto& name = data->input.value;
     const auto& ref_node = data->root.getChild(name);
-    auto& current_node = data->stack.back();
+    auto& current_node = data->node_stack.back();
     current_node->copyProperties(ref_node);
     current_node->copyChildren(ref_node);
     current_node->copyValue(ref_node);
@@ -106,7 +108,7 @@ void add_ref(dncfg_node_data_t* data)
 
 void add_prop_value_str(dncfg_node_data_t* data)
 {
-    auto& current_node = data->stack.back();
+    auto& current_node = data->node_stack.back();
     const auto& value = data->input.value;
     const auto& name = data->last_prop_name;
     current_node->appendToStringProperty(name, value);
@@ -121,54 +123,70 @@ void add_prop_value_ref(dncfg_node_data_t* data)
 {
     const auto& name = data->input.value;
     const auto& ref_node = data->root.getChild(name);
-    auto& current_node = data->stack.back();
+    auto& current_node = data->node_stack.back();
     const auto& prop_name = data->last_prop_name;
     current_node->setProperty(prop_name, ref_node.getValue());
 }
 
 void add_value_str(dncfg_node_data_t* data)
 {
-    auto& current_node = data->stack.back();
+    auto& current_node = data->node_stack.back();
     const auto& value = data->input.value;
     current_node->appendToValue(value);
 }
 
-void add_value_number(dncfg_node_data_t* data)
-{
-    add_value_str(data);
-}
+void add_value_number(dncfg_node_data_t* data) { add_value_str(data); }
 
 void append_to_list(dncfg_node_data_t* data)
 {
-    auto& current_node = data->stack.back();
-    const auto& value = data->input.value;
-    current_node->push_back(value);
+    using Value = vvv::CfgNode::value_type;
+    auto& value_stack = data->value_stack;
+    auto* last_value = value_stack.back();
+    auto& last_value_list = last_value->asList();
+    last_value_list.push_back(Value(data->input.value));
 }
 
 void start_list(dncfg_node_data_t* data)
 {
-    auto& current_node = data->stack.back();
+    auto& current_node = data->node_stack.back();
     current_node->addEmptyList();
+    data->value_stack.push_back(&current_node->getValue());
+}
+
+void pop_value_stack(dncfg_node_data_t* data)
+{
+    data->value_stack.pop_back();
+}
+
+void clear_value_stack(dncfg_node_data_t* data)
+{
+    data->value_stack.clear();
+}
+
+void push_list_to_value_stack(dncfg_node_data_t* data)
+{
+    using Value = vvv::CfgNode::value_type;
+    auto& value_stack = data->value_stack;
+    auto* last_value = value_stack.back();
+    auto& last_value_list = last_value->asList();
+    last_value_list.push_back(Value(Value::DATA_TYPE::LIST));
+    Value* new_last = &last_value_list.back();
+    value_stack.push_back(new_last);
 }
 
 void start_prop_list(dncfg_node_data_t* data)
 {
-    auto& current_node = data->stack.back();
+    using Value = vvv::CfgNode::value_type;
+    auto& current_node = data->node_stack.back();
     const auto& name = data->last_prop_name;
-    current_node->setProperty(name, vvv::CfgNode::value_list_type{});
-}
-
-void append_to_prop_list(dncfg_node_data_t* data)
-{
-    auto& current_node = data->stack.back();
-    const auto& name = data->last_prop_name;
-    const auto& value = data->input.value;
-    current_node->appendToListProperty(name, value);
+    current_node->setProperty(name, Value(Value::DATA_TYPE::LIST));
+    auto* property = &current_node->getProperty(name);
+    data->value_stack.push_back(property);
 }
 
 void append_to_last_in_prop_list(dncfg_node_data_t* data)
 {
-    auto& current_node = data->stack.back();
+    auto& current_node = data->node_stack.back();
     const auto& name = data->last_prop_name;
     const auto& value = data->input.value;
     current_node->appendToLastListProperty(name, value);
@@ -176,11 +194,10 @@ void append_to_last_in_prop_list(dncfg_node_data_t* data)
 
 void append_to_last_in_list(dncfg_node_data_t* data)
 {
-    auto& current_node = data->stack.back();
+    auto& current_node = data->node_stack.back();
     const auto& value = data->input.value;
     current_node->appendToLast(value);
 }
-
 
 int dncfg_node_is_space(const dncfg_node_data_t* data)
 {
@@ -237,6 +254,16 @@ int dncfg_node_is_close_squre_br(const dncfg_node_data_t* data)
     return data->input.type == TOKEN_TYPE_CLOSE_SQUARE_BR;
 }
 
+int dncfg_node_is_close_squre_br_lvl_e0(const dncfg_node_data_t* data)
+{
+    return dncfg_node_is_close_squre_br(data) && data->value_stack.size() == 1;
+}
+
+int dncfg_node_is_close_squre_br_lvl_ne0(const dncfg_node_data_t* data)
+{
+    return dncfg_node_is_close_squre_br(data) && data->value_stack.size() > 1;
+}
+
 namespace vvv {
 CfgNode make_cfg(std::istream& input)
 {
@@ -256,4 +283,4 @@ CfgNode make_cfg(const std::string& input)
     return make_cfg(str);
 }
 
-}
+} // namespace vvv

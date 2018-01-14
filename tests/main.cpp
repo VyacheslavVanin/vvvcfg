@@ -61,6 +61,97 @@ float_number = 3.1415
     EXPECT_EQ(float_val, "3.1415");
 }
 
+GTEST_TEST(vvvcfg, node_value_nested_list_simple)
+{
+    const auto input = R"(
+node1 = [[]]
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node1 = root.getChild("node1");
+    const auto& list = node1.getValue().asList();
+    EXPECT_EQ(list.size(), 1);
+    EXPECT_TRUE(list[0].isList());
+    const auto& list_list = list[0].asList();
+    EXPECT_TRUE(list_list.empty());
+}
+
+GTEST_TEST(vvvcfg, node_value_nested_list)
+{
+    const auto input = R"(
+node1 = [["text"], [42, 3.14]]
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node1 = root.getChild("node1");
+    const auto& list = node1.getValue().asList();
+    EXPECT_EQ(list.size(), 2);
+    EXPECT_TRUE(list[0].isList());
+    const auto& list_list1 = list[0].asList();
+    EXPECT_EQ(list_list1.size(), 1);
+    EXPECT_EQ(list_list1[0].asString(), "text");
+
+    const auto& list_list2 = list[1].asList();
+    EXPECT_EQ(list_list2.size(), 2);
+    EXPECT_EQ(list_list2[0].asString(), "42");
+    EXPECT_EQ(list_list2[1].asString(), "3.14");
+}
+
+GTEST_TEST(vvvcfg, node_value_nested_list_complex)
+{
+    const auto input = R"(
+node1 = [["text"], [42, [3.14], [42, "123"], []]]
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node1 = root.getChild("node1");
+    const auto& list = node1.getValue().asList();
+    EXPECT_EQ(list.size(), 2);
+    EXPECT_TRUE(list[0].isList());
+    const auto& list_list1 = list[0].asList();
+    EXPECT_EQ(list_list1.size(), 1);
+    EXPECT_EQ(list_list1[0].asString(), "text");
+
+    const auto& list_list2 = list[1].asList();
+    EXPECT_EQ(list_list2.size(), 4);
+    EXPECT_EQ(list_list2[0].asString(), "42");
+    EXPECT_EQ(list_list2[1].asStringList(), vvv::CfgNode::value_list_type{"3.14"});
+    const auto& expected =vvv::CfgNode::value_list_type{"42", "123"};
+    EXPECT_EQ(list_list2[2].asStringList(), expected);
+    EXPECT_TRUE(list_list2[3].asList().empty());
+}
+
+GTEST_TEST(vvvcfg, node_value_nested_list_ref)
+{
+    const auto input = R"(
+node = [["text"], [42, [3.14], [42, "123"], []]]
+node2 = $node
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node = root.getChild("node");
+    const auto& node2 = root.getChild("node2");
+    EXPECT_EQ(node.getValue(), node2.getValue());
+}
+
+GTEST_TEST(vvvcfg, node_value_nested_multiline)
+{
+    const auto input = R"(
+node = [
+        "111",
+        "222"
+        ,
+        "333"
+        ]
+node2 = ["111", "222", "333"]
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node = root.getChild("node");
+    const auto& node2 = root.getChild("node2");
+    EXPECT_EQ(node.getValue(), node2.getValue());
+}
+
 GTEST_TEST(vvvcfg, string_properties)
 {
     const auto input = R"(
@@ -141,6 +232,36 @@ node prop1=["value", "42", 3.14], prop2=["2" "4"], prop3=[]
     EXPECT_FALSE(prop3.isString());
     const auto& list3 = prop3.asStringList();
     EXPECT_TRUE(list3.empty());
+}
+
+GTEST_TEST(vvvcfg, nested_list_properties)
+{
+    const auto input = R"(
+node prop1=[[]],
+     prop2=["text", [42, 3.1415]]
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node = root.getChild("node");
+    const auto& prop1 = node.getProperty("prop1");
+    EXPECT_TRUE(prop1.isList());
+    const auto& list1 = prop1.asList();
+    EXPECT_EQ(list1.size(), 1);
+    EXPECT_TRUE(list1[0].isList());
+    const auto& list1_list = list1[0].asList();
+    EXPECT_TRUE(list1_list.empty());
+
+    const auto& prop2 = node.getProperty("prop2");
+    EXPECT_TRUE(prop2.isList());
+    const auto& list2 = prop2.asList();
+    EXPECT_EQ(list2.size(), 2);
+    const auto& list2_0 = list2[0];
+    EXPECT_TRUE(list2_0.isString());
+    EXPECT_EQ(list2_0.asString(), "text");
+    const auto& list2_1 = list2[1];
+    EXPECT_TRUE(list2_1.isList());
+    const std::vector<std::string> expected {"42", "3.1415"};
+    EXPECT_EQ(list2_1.asStringList(), expected);
 }
 
 GTEST_TEST(vvvcfg, linecontinuation)
@@ -275,7 +396,6 @@ node2
     const std::vector<std::string> path = {"node", "subnode1", "another_level"};
     EXPECT_EQ(&root.getChild("node.subnode1.another_level"),
               &root.getChild({"node", "subnode1", "another_level"}));
-
 }
 
 GTEST_TEST(vvvcfg, complex_test)
@@ -295,6 +415,10 @@ list3= [1, 2, 3, 4]
 
 list4= $list3
 list_ex= [3.14, 42, "foo"]
+
+node1 = [[]]
+node2 = [["text"], [42, 3.14]]
+node3 = [["text"], [42, [3.14], ["123"], []]]
 
 view type="vlayout"
     l1

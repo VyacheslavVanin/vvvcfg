@@ -68,8 +68,8 @@ int dncfg_token_is_comma(const dncfg_token_data_t* data);
 int dncfg_token_is_eq(const dncfg_token_data_t* data);
 int dncfg_token_is_backslash(const dncfg_token_data_t* data);
 int dncfg_token_is_sharp(const dncfg_token_data_t* data);
-int dncfg_token_is_open_square_br(const dncfg_token_data_t* data);
 int dncfg_token_is_close_square_br(const dncfg_token_data_t* data);
+int dncfg_token_is_open_square_br(const dncfg_token_data_t* data);
 int dncfg_token_is_dot(const dncfg_token_data_t* data);
 int dncfg_token_is_escape(const dncfg_token_data_t* data);
 

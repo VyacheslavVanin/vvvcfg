@@ -53,9 +53,7 @@ size_t Value::size() const
 
 bool Value::empty() const
 {
-    assert_list();
-    const auto* list = boost::any_cast<any_list>(&data);
-    return list->empty();
+    return data.empty();
 }
 
 Value& Value::operator[](size_t i)
