@@ -239,6 +239,16 @@ int dncfg_token_is_colon(const dncfg_token_data_t* data)
     return data->current_char == ':';
 }
 
+int dncfg_token_is_minus(const dncfg_token_data_t* data)
+{
+    return data->current_char == '-';
+}
+
+int dncfg_token_is_plus(const dncfg_token_data_t* data)
+{
+    return data->current_char == '+';
+}
+
 const char* to_string(TOKEN_TYPE type)
 {
     switch (type) {

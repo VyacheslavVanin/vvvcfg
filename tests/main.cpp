@@ -568,6 +568,28 @@ node1 = [1, 2, {1: 111, 2: 222}, {3: 333}, 4]
     EXPECT_EQ(dict2.at("3").asString(), "333");
 }
 
+GTEST_TEST(vvvcfg, numbers)
+{
+    const auto input = R"(
+int_neg = -42
+int_pos = +42
+float_neg = -3.1415
+float_pos = +3.1415
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    EXPECT_EQ(root.getChild("int_neg").getValueAsString(), "-42");
+    EXPECT_EQ(root.getChild("int_pos").getValueAsString(), "+42");
+    EXPECT_EQ(root.getChild("float_neg").getValueAsString(), "-3.1415");
+    EXPECT_EQ(root.getChild("float_pos").getValueAsString(), "+3.1415");
+}
+
+GTEST_TEST(vvvcfg, numbers_sign_throw)
+{
+    EXPECT_THROW(vvv::make_cfg("int_neg = --42"), std::logic_error);
+    EXPECT_THROW(vvv::make_cfg("int_neg = ++42"), std::logic_error);
+}
+
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

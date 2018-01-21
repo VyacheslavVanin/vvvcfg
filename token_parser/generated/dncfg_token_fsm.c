@@ -11,6 +11,7 @@ const char* dncfg_token_state_names[] = {
     "NAME",
     "STRING",
     "NUM",
+    "SIGN",
     "REF_START",
     "SPACE",
     "NEXTLINE",
@@ -56,6 +57,18 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             start_number_token(data);
             append_symbol(data);
             ctx->state = DNCFG_TOKEN_NUM;
+            break;
+        }
+        if (dncfg_token_is_minus(data)) {
+            start_number_token(data);
+            append_symbol(data);
+            ctx->state = DNCFG_TOKEN_SIGN;
+            break;
+        }
+        if (dncfg_token_is_plus(data)) {
+            start_number_token(data);
+            append_symbol(data);
+            ctx->state = DNCFG_TOKEN_SIGN;
             break;
         }
         if (dncfg_token_is_dollar(data)) {
@@ -212,6 +225,15 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
         commit(data);
         ctx->state = DNCFG_TOKEN_SPACE;
     break;
+    case DNCFG_TOKEN_SIGN: 
+        if (dncfg_token_is_number(data)) {
+            append_symbol(data);
+            ctx->state = DNCFG_TOKEN_NUM;
+            break;
+        }
+        on_error(data);
+        ctx->state = DNCFG_TOKEN_ERROR;
+    break;
     case DNCFG_TOKEN_REF_START: 
         if (dncfg_token_is_alpha(data)) {
             append_symbol(data);
@@ -241,6 +263,18 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
         if (dncfg_token_is_quote(data)) {
             start_string_token(data);
             ctx->state = DNCFG_TOKEN_STRING;
+            break;
+        }
+        if (dncfg_token_is_minus(data)) {
+            start_number_token(data);
+            append_symbol(data);
+            ctx->state = DNCFG_TOKEN_SIGN;
+            break;
+        }
+        if (dncfg_token_is_plus(data)) {
+            start_number_token(data);
+            append_symbol(data);
+            ctx->state = DNCFG_TOKEN_SIGN;
             break;
         }
         if (dncfg_token_is_number(data)) {

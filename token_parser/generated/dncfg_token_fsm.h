@@ -16,6 +16,7 @@ typedef enum DNCFG_TOKEN_STATE {
     DNCFG_TOKEN_NAME,
     DNCFG_TOKEN_STRING,
     DNCFG_TOKEN_NUM,
+    DNCFG_TOKEN_SIGN,
     DNCFG_TOKEN_REF_START,
     DNCFG_TOKEN_SPACE,
     DNCFG_TOKEN_NEXTLINE,
@@ -26,9 +27,9 @@ typedef enum DNCFG_TOKEN_STATE {
     DNCFG_TOKEN_NUM_DOT,
     DNCFG_TOKEN_NUM_DOT_NUM
 } DNCFG_TOKEN_STATE;
-#define DNCFG_TOKEN_STATE_count 14
+#define DNCFG_TOKEN_STATE_count 15
 
-extern const char* dncfg_token_state_names[14];
+extern const char* dncfg_token_state_names[15];
 
 
 typedef struct dncfg_token_data_t dncfg_token_data_t;
@@ -66,6 +67,8 @@ int dncfg_token_is_eol(const dncfg_token_data_t* data);
 int dncfg_token_is_alpha(const dncfg_token_data_t* data);
 int dncfg_token_is_quote(const dncfg_token_data_t* data);
 int dncfg_token_is_number(const dncfg_token_data_t* data);
+int dncfg_token_is_minus(const dncfg_token_data_t* data);
+int dncfg_token_is_plus(const dncfg_token_data_t* data);
 int dncfg_token_is_dollar(const dncfg_token_data_t* data);
 int dncfg_token_is_comma(const dncfg_token_data_t* data);
 int dncfg_token_is_eq(const dncfg_token_data_t* data);
