@@ -5,6 +5,19 @@
 
 #include <vvvcfg/vvvcfg.hpp>
 
+GTEST_TEST(vvvcfg, value)
+{
+    using Value = vvv::CfgNode::value_type;
+    Value v(Value::DATA_TYPE::DICT);
+    auto& dict = v.asDict();
+    dict["key1"] = Value("value1");
+    dict["key2"] = Value("value2");
+    dict["key3"] = std::string("value3");
+    dict["key4"] = std::vector<std::string>{"111", "222"};
+    dict["key5"] = std::unordered_map<std::string, std::string>{{"a", "aaa"},
+                                                                {"b", "bbb"}};
+}
+
 GTEST_TEST(vvvcfg, plain)
 {
     const auto input = R"(
@@ -115,8 +128,9 @@ node1 = [["text"], [42, [3.14], [42, "123"], []]]
     const auto& list_list2 = list[1].asList();
     EXPECT_EQ(list_list2.size(), 4);
     EXPECT_EQ(list_list2[0].asString(), "42");
-    EXPECT_EQ(list_list2[1].asStringList(), vvv::CfgNode::value_list_type{"3.14"});
-    const auto& expected =vvv::CfgNode::value_list_type{"42", "123"};
+    EXPECT_EQ(list_list2[1].asStringList(),
+              vvv::CfgNode::value_list_type{"3.14"});
+    const auto& expected = vvv::CfgNode::value_list_type{"42", "123"};
     EXPECT_EQ(list_list2[2].asStringList(), expected);
     EXPECT_TRUE(list_list2[3].asList().empty());
 }
@@ -275,7 +289,7 @@ node prop1=[[]],
     EXPECT_EQ(list2_0.asString(), "text");
     const auto& list2_1 = list2[1];
     EXPECT_TRUE(list2_1.isList());
-    const std::vector<std::string> expected {"42", "3.1415"};
+    const std::vector<std::string> expected{"42", "3.1415"};
     EXPECT_EQ(list2_1.asStringList(), expected);
 }
 
@@ -469,6 +483,89 @@ view type="vlayout"
     )";
     vvv::CfgNode root("");
     EXPECT_NO_THROW(root = vvv::make_cfg(input));
+}
+
+GTEST_TEST(vvvcfg, dict)
+{
+    const auto input = R"(
+node1 = {"key": "value", "key2": "value2",
+         "key3": 123,
+         4: 444}
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node1 = root.getChild("node1");
+    const auto& value = node1.getValue();
+    EXPECT_TRUE(value.isDict());
+    auto& dict = value.asDict();
+    EXPECT_EQ(dict.size(), 4);
+    auto& val = dict.at(std::string("key"));
+    EXPECT_TRUE(val.isString());
+    EXPECT_EQ(val.asString(), "value");
+    EXPECT_EQ(dict.at("key2").asString(), "value2");
+    EXPECT_EQ(dict.at("key3").asString(), "123");
+    EXPECT_EQ(dict.at("4").asString(), "444");
+}
+
+GTEST_TEST(vvvcfg, dict_nested_dict)
+{
+    const auto input = R"(
+node1 = {"key": "value",
+         "nested": { 1: 111,
+                     2: 222 }
+        }
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node1 = root.getChild("node1");
+    const auto& value = node1.getValue();
+    EXPECT_TRUE(value.isDict());
+    const auto& dict1 = value.asDict();
+    const auto& nested = dict1.at("nested").asDict();
+    EXPECT_EQ(nested.size(), 2);
+    EXPECT_EQ(nested.at("1").asString(), "111");
+    EXPECT_EQ(nested.at("2").asString(), "222");
+}
+
+GTEST_TEST(vvvcfg, dict_nested_list)
+{
+    const auto input = R"(
+node1 = {"key": "value",
+         "nested": [1, 2, 3]
+        }
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node1 = root.getChild("node1");
+    const auto& value = node1.getValue();
+    EXPECT_TRUE(value.isDict());
+    const auto& dict1 = value.asDict();
+    const auto& nested = dict1.at("nested").asStringList();
+    const std::vector<std::string> expected {"1", "2", "3"};
+    EXPECT_EQ(nested, expected);
+}
+
+GTEST_TEST(vvvcfg, list_nested_dict)
+{
+    const auto input = R"(
+node1 = [1, 2, {1: 111, 2: 222}, {3: 333}, 4]
+    )";
+    vvv::CfgNode root("");
+    EXPECT_NO_THROW(root = vvv::make_cfg(input));
+    const auto& node1 = root.getChild("node1");
+    const auto& value = node1.getValue();
+    EXPECT_TRUE(value.isList());
+    const auto& list = value.asList();
+    EXPECT_TRUE(list[2].isDict());
+    EXPECT_TRUE(list[3].isDict());
+    EXPECT_TRUE(list[4].isString());
+
+    const auto& dict1 = list[2].asDict();
+    EXPECT_EQ(dict1.at("1").asString(), "111");
+    EXPECT_EQ(dict1.at("2").asString(), "222");
+
+    const auto& dict2 = list[3].asDict();
+    EXPECT_EQ(dict2.at("3").asString(), "333");
 }
 
 int main(int argc, char** argv)

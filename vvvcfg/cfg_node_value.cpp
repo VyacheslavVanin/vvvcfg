@@ -12,7 +12,8 @@ Value::Value(DATA_TYPE type) : data(), type(type)
 {
     switch (type) {
     case DATA_TYPE::STRING: data = std::string(); break;
-    case DATA_TYPE::LIST: data = std::vector<Value>(); break;
+    case DATA_TYPE::LIST: data = list_type(); break;
+    case DATA_TYPE::DICT: data = dict_type(); break;
     default: throw std::logic_error("Invalud DATA_TYPE");
     }
 }
@@ -21,6 +22,12 @@ void Value::assert_list() const
 {
     if (type != DATA_TYPE::LIST)
         throw std::logic_error("Non-list object");
+}
+
+void Value::assert_dict() const
+{
+    if (type != DATA_TYPE::DICT)
+        throw std::logic_error("Non-dict object");
 }
 
 void Value::assert_string() const
@@ -39,7 +46,7 @@ Value& Value::operator=(const std::string& value)
 Value& Value::append(const Value& value)
 {
     assert_list();
-    auto* list = boost::any_cast<any_list>(&data);
+    auto* list = boost::any_cast<list_type>(&data);
     list->push_back(value);
     return *this;
 }
@@ -47,14 +54,11 @@ Value& Value::append(const Value& value)
 size_t Value::size() const
 {
     assert_list();
-    const auto* list = boost::any_cast<any_list>(&data);
+    const auto* list = boost::any_cast<list_type>(&data);
     return list->size();
 }
 
-bool Value::empty() const
-{
-    return data.empty();
-}
+bool Value::empty() const { return data.empty(); }
 
 Value& Value::operator[](size_t i)
 {
@@ -63,13 +67,14 @@ Value& Value::operator[](size_t i)
 
 const Value& Value::operator[](size_t i) const
 {
-    auto& list = *boost::any_cast<any_list>(&data);
+    auto& list = *boost::any_cast<list_type>(&data);
     return list[i];
 }
 
 std::string& Value::asString()
 {
-    return const_cast<std::string&>(static_cast<const Value&>(*this).asString());
+    return const_cast<std::string&>(
+        static_cast<const Value&>(*this).asString());
 }
 
 const std::string& Value::asString() const
@@ -78,18 +83,29 @@ const std::string& Value::asString() const
     return *boost::any_cast<std::string>(&data);
 }
 
-std::vector<Value>& Value::asList()
+Value::list_type& Value::asList()
 {
-    return const_cast<std::vector<Value>&>(static_cast<const Value&>(*this).asList());
+    return const_cast<list_type&>(static_cast<const Value&>(*this).asList());
 }
 
-const std::vector<Value>& Value::asList() const
+const Value::list_type& Value::asList() const
 {
     assert_list();
-    return *boost::any_cast<any_list>(&data);
+    return *boost::any_cast<list_type>(&data);
 }
 
-const std::vector<std::string> Value::asStringList() const
+Value::dict_type& Value::asDict()
+{
+    return const_cast<dict_type&>(static_cast<const Value&>(*this).asDict());
+}
+
+const Value::dict_type& Value::asDict() const
+{
+    assert_dict();
+    return *boost::any_cast<dict_type>(&data);
+}
+
+std::vector<std::string> Value::asStringList() const
 {
     const auto s = size();
     std::vector<std::string> ret;
@@ -110,10 +126,9 @@ bool Value::operator==(const Value& other) const
     return true;
 }
 
+} // namespace vvv
 
-}
-
-std::ostream& operator<<(std::ostream& str, const std::vector<vvv::Value>& n)
+std::ostream& operator<<(std::ostream& str, const vvv::Value::list_type& n)
 {
     const auto s = n.size();
     str << "[";
@@ -127,13 +142,35 @@ std::ostream& operator<<(std::ostream& str, const std::vector<vvv::Value>& n)
     return str;
 }
 
-std::ostream& operator<<(std::ostream& str, const vvv::Value& n)
+std::ostream& operator<<(std::ostream& str, const vvv::Value::dict_type& n)
 {
-    switch (n.getType()) {
-    case vvv::Value::DATA_TYPE::STRING: str << n.asString(); break;
-    case vvv::Value::DATA_TYPE::LIST: str << n.asList(); break;
+    const auto s = n.size();
+    str << "{";
+    if (s == 1) {
+        const auto& i = *n.begin();
+        str << "{" << i.first << ":" << i.second << "}";
     }
+    else if (s > 1) {
+        const auto& front = *n.begin();
+        str << "{" << front.first << ":" << front.second << "}";
+        auto first = n.begin();
+        auto second = first;
+        second++;
+        for (auto i = second; i != n.end(); ++i)
+            str << ", {" << i->first << ":" << i->second << "}";
+    }
+    str << "}";
     return str;
 }
 
-
+std::ostream& operator<<(std::ostream& str, const vvv::Value& n)
+{
+    switch (n.getType()) {
+    case vvv::Value::DATA_TYPE::STRING:
+        str << "\"" << n.asString() << "\"";
+        break;
+    case vvv::Value::DATA_TYPE::LIST: str << n.asList(); break;
+    case vvv::Value::DATA_TYPE::DICT: str << n.asDict(); break;
+    }
+    return str;
+}

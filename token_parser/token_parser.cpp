@@ -86,6 +86,21 @@ void start_close_square_br(dncfg_token_data_t* data)
     data->token = {TOKEN_TYPE_CLOSE_SQUARE_BR, "", data->line_number};
 } 
 
+void start_open_curly_br(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_OPEN_CURLY_BR, "", data->line_number};
+}
+
+void start_close_curly_br(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_CLOSE_CURLY_BR, "", data->line_number};
+}
+
+void start_colon(dncfg_token_data_t* data)
+{
+    data->token = {TOKEN_TYPE_COLON, "", data->line_number};
+}
+
 void putback(dncfg_token_data_t* data)
 {
     data->stream->putback(data->current_char);
@@ -209,6 +224,21 @@ int dncfg_token_is_close_square_br(const dncfg_token_data_t* data)
     return data->current_char == ']';
 }
 
+int dncfg_token_is_open_curly_br(const dncfg_token_data_t* data)
+{
+    return data->current_char == '{';
+}
+
+int dncfg_token_is_close_curly_br(const dncfg_token_data_t* data)
+{
+    return data->current_char == '}';
+}
+
+int dncfg_token_is_colon(const dncfg_token_data_t* data)
+{
+    return data->current_char == ':';
+}
+
 const char* to_string(TOKEN_TYPE type)
 {
     switch (type) {
@@ -223,6 +253,9 @@ const char* to_string(TOKEN_TYPE type)
     case TOKEN_TYPE_LINECOUNTER: return "LINECOUNTER";
     case TOKEN_TYPE_OPEN_SQUARE_BR: return "OPEN_SQUARE_BRACKET";
     case TOKEN_TYPE_CLOSE_SQUARE_BR: return "CLOSE_SQUARE_BRACKET";
+    case TOKEN_TYPE_OPEN_CURLY_BR: return "OPEN_CURLY_BRACKET";
+    case TOKEN_TYPE_CLOSE_CURLY_BR: return "CLOSE_CURLY_BRACKET";
+    case TOKEN_TYPE_COLON: return "COLON";
     }
     return "unknown";
 }

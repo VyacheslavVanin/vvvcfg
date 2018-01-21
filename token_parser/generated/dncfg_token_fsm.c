@@ -75,6 +75,36 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_SPACE;
             break;
         }
+        if (dncfg_token_is_open_square_br(data)) {
+            start_open_square_br(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
+        if (dncfg_token_is_close_square_br(data)) {
+            start_close_square_br(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
+        if (dncfg_token_is_open_curly_br(data)) {
+            start_open_curly_br(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
+        if (dncfg_token_is_close_curly_br(data)) {
+            start_close_curly_br(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
+        if (dncfg_token_is_colon(data)) {
+            start_colon(data);
+            commit(data);
+            ctx->state = DNCFG_TOKEN_SPACE;
+            break;
+        }
         if (dncfg_token_is_backslash(data)) {
             ctx->state = DNCFG_TOKEN_NEXTLINE;
             break;
@@ -96,54 +126,6 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             append_symbol(data);
             break;
         }
-        if (dncfg_token_is_alpha(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_quote(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_number(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_dollar(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_comma(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_eq(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_close_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_open_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_backslash(data)) {
             ctx->state = DNCFG_TOKEN_NEXTLINE;
             break;
@@ -152,15 +134,11 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_COMMENT;
             break;
         }
-        ctx->state = DNCFG_TOKEN_ERROR;
+        putback(data);
+        commit(data);
+        ctx->state = DNCFG_TOKEN_SPACE;
     break;
     case DNCFG_TOKEN_NAME: 
-        if (dncfg_token_is_eol(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_alpha(data)) {
             append_symbol(data);
             break;
@@ -174,18 +152,6 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_SPACE;
             break;
         }
-        if (dncfg_token_is_comma(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_eq(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_backslash(data)) {
             commit(data);
             ctx->state = DNCFG_TOKEN_NEXTLINE;
@@ -196,8 +162,9 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_COMMENT;
             break;
         }
-        on_error(data);
-        ctx->state = DNCFG_TOKEN_ERROR;
+        putback(data);
+        commit(data);
+        ctx->state = DNCFG_TOKEN_SPACE;
     break;
     case DNCFG_TOKEN_STRING: 
         if (dncfg_token_is_backslash(data)) {
@@ -217,12 +184,6 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
         append_symbol(data);
     break;
     case DNCFG_TOKEN_NUM: 
-        if (dncfg_token_is_eol(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_number(data)) {
             append_symbol(data);
             break;
@@ -237,18 +198,6 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_SPACE;
             break;
         }
-        if (dncfg_token_is_comma(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_eq(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_backslash(data)) {
             commit(data);
             ctx->state = DNCFG_TOKEN_NEXTLINE;
@@ -259,20 +208,9 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_COMMENT;
             break;
         }
-        if (dncfg_token_is_close_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_open_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        on_error(data);
-        ctx->state = DNCFG_TOKEN_ERROR;
+        putback(data);
+        commit(data);
+        ctx->state = DNCFG_TOKEN_SPACE;
     break;
     case DNCFG_TOKEN_REF_START: 
         if (dncfg_token_is_alpha(data)) {
@@ -344,6 +282,21 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             commit(data);
             break;
         }
+        if (dncfg_token_is_open_curly_br(data)) {
+            start_open_curly_br(data);
+            commit(data);
+            break;
+        }
+        if (dncfg_token_is_close_curly_br(data)) {
+            start_close_curly_br(data);
+            commit(data);
+            break;
+        }
+        if (dncfg_token_is_colon(data)) {
+            start_colon(data);
+            commit(data);
+            break;
+        }
         on_error(data);
         unexpected_symbol(data);
         ctx->state = DNCFG_TOKEN_ERROR;
@@ -371,12 +324,6 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
     case DNCFG_TOKEN_ERROR: 
     break;
     case DNCFG_TOKEN_REF: 
-        if (dncfg_token_is_eol(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_alpha(data)) {
             append_symbol(data);
             break;
@@ -395,30 +342,6 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_SPACE;
             break;
         }
-        if (dncfg_token_is_comma(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_open_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_close_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_eq(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_backslash(data)) {
             commit(data);
             ctx->state = DNCFG_TOKEN_NEXTLINE;
@@ -429,8 +352,9 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_COMMENT;
             break;
         }
-        on_error(data);
-        ctx->state = DNCFG_TOKEN_ERROR;
+        putback(data);
+        commit(data);
+        ctx->state = DNCFG_TOKEN_SPACE;
     break;
     case DNCFG_TOKEN_STRING_ESC: 
         if (dncfg_token_is_escape(data)) {
@@ -446,12 +370,6 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
         ctx->state = DNCFG_TOKEN_STRING;
     break;
     case DNCFG_TOKEN_NUM_DOT: 
-        if (dncfg_token_is_eol(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_number(data)) {
             append_symbol(data);
             ctx->state = DNCFG_TOKEN_NUM_DOT_NUM;
@@ -462,18 +380,6 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_SPACE;
             break;
         }
-        if (dncfg_token_is_comma(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_eq(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_backslash(data)) {
             commit(data);
             ctx->state = DNCFG_TOKEN_NEXTLINE;
@@ -484,28 +390,11 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_COMMENT;
             break;
         }
-        if (dncfg_token_is_close_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_open_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        on_error(data);
-        ctx->state = DNCFG_TOKEN_ERROR;
+        putback(data);
+        commit(data);
+        ctx->state = DNCFG_TOKEN_SPACE;
     break;
     case DNCFG_TOKEN_NUM_DOT_NUM: 
-        if (dncfg_token_is_eol(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_number(data)) {
             append_symbol(data);
             break;
@@ -515,18 +404,6 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_SPACE;
             break;
         }
-        if (dncfg_token_is_comma(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_eq(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
         if (dncfg_token_is_backslash(data)) {
             commit(data);
             ctx->state = DNCFG_TOKEN_NEXTLINE;
@@ -537,20 +414,9 @@ void dncfg_token_step(dncfg_token_ctx_t* ctx)
             ctx->state = DNCFG_TOKEN_COMMENT;
             break;
         }
-        if (dncfg_token_is_close_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        if (dncfg_token_is_open_square_br(data)) {
-            putback(data);
-            commit(data);
-            ctx->state = DNCFG_TOKEN_SPACE;
-            break;
-        }
-        on_error(data);
-        ctx->state = DNCFG_TOKEN_ERROR;
+        putback(data);
+        commit(data);
+        ctx->state = DNCFG_TOKEN_SPACE;
     break;
     }
 

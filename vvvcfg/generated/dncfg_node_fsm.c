@@ -13,21 +13,24 @@ const char* dncfg_node_state_names[] = {
     "PROP",
     "REF",
     "NODE_EQ",
-    "NODE_VALUE",
+    "NODE_NUMBER",
     "NODE_EQ_STR",
-    "NODE_EQ_LIST",
-    "NODE_EQ_LIST_STR",
-    "NODE_EQ_LIST_FULL",
-    "NODE_EQ_LIST_NEXT",
+    "VALUE",
+    "LIST",
+    "DICT",
+    "DICT_KEY",
+    "DICT_NEXT",
+    "LIST_NEXT",
+    "DICT_COLON",
+    "DICT_KEY_STRING",
+    "DICT_KEY_NUMBER",
+    "LIST_STR",
+    "LIST_FULL",
     "PROP_EQ",
     "PROP_COMMA",
     "PROP_EQ_STR",
     "PROP_EQ_NUM",
-    "PROP_EQ_REF",
-    "PROP_EQ_LIST",
-    "PROP_EQ_LIST_STR",
-    "PROP_EQ_LIST_FULL",
-    "PROP_EQ_LIST_NEXT"
+    "PROP_EQ_REF"
 };
 
 void dncfg_node_step(dncfg_node_ctx_t* ctx)
@@ -156,7 +159,7 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         }
         if (dncfg_node_is_number(data)) {
             add_value_number(data);
-            ctx->state = DNCFG_NODE_NODE_VALUE;
+            ctx->state = DNCFG_NODE_NODE_NUMBER;
             break;
         }
         if (dncfg_node_is_string(data)) {
@@ -164,9 +167,16 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             ctx->state = DNCFG_NODE_NODE_EQ_STR;
             break;
         }
-        if (dncfg_node_is_open_squre_br(data)) {
-            start_list(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST;
+        if (dncfg_node_is_open_square_br(data)) {
+            set_value_dst_node(data);
+            node_putback(data);
+            ctx->state = DNCFG_NODE_VALUE;
+            break;
+        }
+        if (dncfg_node_is_open_curly_br(data)) {
+            set_value_dst_node(data);
+            node_putback(data);
+            ctx->state = DNCFG_NODE_VALUE;
             break;
         }
         if (dncfg_node_is_ref(data)) {
@@ -177,7 +187,7 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         on_invalid_token(data);
         ctx->state = DNCFG_NODE_ERROR;
     break;
-    case DNCFG_NODE_NODE_VALUE: 
+    case DNCFG_NODE_NODE_NUMBER: 
         if (dncfg_node_is_newline(data)) {
             inc_line_count(data);
             ctx->state = DNCFG_NODE_START;
@@ -231,7 +241,21 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         on_invalid_token(data);
         ctx->state = DNCFG_NODE_ERROR;
     break;
-    case DNCFG_NODE_NODE_EQ_LIST: 
+    case DNCFG_NODE_VALUE: 
+        if (dncfg_node_is_open_square_br(data)) {
+            start_list(data);
+            ctx->state = DNCFG_NODE_LIST;
+            break;
+        }
+        if (dncfg_node_is_open_curly_br(data)) {
+            start_dict(data);
+            ctx->state = DNCFG_NODE_DICT;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_LIST: 
         if (dncfg_node_is_linecount(data)) {
             inc_line_count(data);
             break;
@@ -245,37 +269,105 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         }
         if (dncfg_node_is_string(data)) {
             append_to_list(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_STR;
+            ctx->state = DNCFG_NODE_LIST_STR;
             break;
         }
         if (dncfg_node_is_number(data)) {
             append_to_list(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_FULL;
+            ctx->state = DNCFG_NODE_LIST_FULL;
             break;
         }
         if (dncfg_node_is_ref(data)) {
             append_ref_to_list(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_FULL;
+            ctx->state = DNCFG_NODE_LIST_FULL;
             break;
         }
-        if (dncfg_node_is_open_squre_br(data)) {
+        if (dncfg_node_is_open_square_br(data)) {
             push_list_to_value_stack(data);
             break;
         }
-        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
-            pop_value_stack(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_NEXT;
+        if (dncfg_node_is_open_curly_br(data)) {
+            push_dict_to_value_stack(data);
+            ctx->state = DNCFG_NODE_DICT;
             break;
         }
-        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
-            clear_value_stack(data);
+        if (dncfg_node_is_close_square_br_prev_lvl_list(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_square_br_prev_lvl_dict(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_DICT_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_square_br_lvl_0_dst_node(data)) {
+            commit_value(data);
             ctx->state = DNCFG_NODE_NODE;
+            break;
+        }
+        if (dncfg_node_is_close_square_br_lvl_0_dst_prop(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_PROP;
             break;
         }
         on_invalid_token(data);
         ctx->state = DNCFG_NODE_ERROR;
     break;
-    case DNCFG_NODE_NODE_EQ_LIST_STR: 
+    case DNCFG_NODE_DICT: 
+        if (dncfg_node_is_linecount(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
+            break;
+        }
+        if (dncfg_node_is_string(data)) {
+            dict_set_key(data);
+            ctx->state = DNCFG_NODE_DICT_KEY;
+            break;
+        }
+        if (dncfg_node_is_number(data)) {
+            dict_set_key(data);
+            ctx->state = DNCFG_NODE_DICT_KEY;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_prev_lvl_dict(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_DICT_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_prev_lvl_list(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_lvl_0_dst_node(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_NODE;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_lvl_0_dst_prop(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_PROP;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_DICT_KEY: 
+        if (dncfg_node_is_colon(data)) {
+            ctx->state = DNCFG_NODE_DICT_COLON;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_DICT_NEXT: 
         if (dncfg_node_is_linecount(data)) {
             inc_line_count(data);
             break;
@@ -288,27 +380,203 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             break;
         }
         if (dncfg_node_is_comma(data)) {
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST;
+            ctx->state = DNCFG_NODE_DICT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_prev_lvl_dict(data)) {
+            pop_value_stack(data);
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_prev_lvl_list(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_lvl_0_dst_node(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_NODE;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_lvl_0_dst_prop(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_PROP;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_LIST_NEXT: 
+        if (dncfg_node_is_linecount(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
+            break;
+        }
+        if (dncfg_node_is_comma(data)) {
+            ctx->state = DNCFG_NODE_LIST;
+            break;
+        }
+        if (dncfg_node_is_close_square_br_prev_lvl_list(data)) {
+            pop_value_stack(data);
+            break;
+        }
+        if (dncfg_node_is_close_square_br_prev_lvl_dict(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_DICT_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_square_br_lvl_0_dst_node(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_NODE;
+            break;
+        }
+        if (dncfg_node_is_close_square_br_lvl_0_dst_prop(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_PROP;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_DICT_COLON: 
+        if (dncfg_node_is_string(data)) {
+            dict_set_string_value(data);
+            ctx->state = DNCFG_NODE_DICT_KEY_STRING;
+            break;
+        }
+        if (dncfg_node_is_number(data)) {
+            dict_set_string_value(data);
+            ctx->state = DNCFG_NODE_DICT_KEY_NUMBER;
+            break;
+        }
+        if (dncfg_node_is_open_curly_br(data)) {
+            dict_set_dict_value(data);
+            ctx->state = DNCFG_NODE_DICT;
+            break;
+        }
+        if (dncfg_node_is_open_square_br(data)) {
+            dict_set_list_value(data);
+            ctx->state = DNCFG_NODE_LIST;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_DICT_KEY_STRING: 
+        if (dncfg_node_is_string(data)) {
+            append_string_to_dict_value(data);
+            break;
+        }
+        if (dncfg_node_is_comma(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_DICT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_prev_lvl_dict(data)) {
+            pop_value_stack(data);
+            node_putback(data);
+            ctx->state = DNCFG_NODE_DICT_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_prev_lvl_list(data)) {
+            pop_value_stack(data);
+            node_putback(data);
+            ctx->state = DNCFG_NODE_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_lvl_0_dst_node(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_NODE;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_lvl_0_dst_prop(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_PROP;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_DICT_KEY_NUMBER: 
+        if (dncfg_node_is_comma(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_DICT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_prev_lvl_dict(data)) {
+            pop_value_stack(data);
+            node_putback(data);
+            ctx->state = DNCFG_NODE_DICT_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_prev_lvl_list(data)) {
+            pop_value_stack(data);
+            node_putback(data);
+            ctx->state = DNCFG_NODE_LIST_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_lvl_0_dst_node(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_NODE;
+            break;
+        }
+        if (dncfg_node_is_close_curly_br_lvl_0_dst_prop(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_PROP;
+            break;
+        }
+        on_invalid_token(data);
+        ctx->state = DNCFG_NODE_ERROR;
+    break;
+    case DNCFG_NODE_LIST_STR: 
+        if (dncfg_node_is_linecount(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_newline(data)) {
+            inc_line_count(data);
+            break;
+        }
+        if (dncfg_node_is_space(data)) {
+            break;
+        }
+        if (dncfg_node_is_comma(data)) {
+            ctx->state = DNCFG_NODE_LIST;
             break;
         }
         if (dncfg_node_is_string(data)) {
             append_to_last_in_list(data);
             break;
         }
-        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+        if (dncfg_node_is_close_square_br_prev_lvl_list(data)) {
             pop_value_stack(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_NEXT;
+            ctx->state = DNCFG_NODE_LIST_NEXT;
             break;
         }
-        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
-            clear_value_stack(data);
+        if (dncfg_node_is_close_square_br_prev_lvl_dict(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_DICT_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_square_br_lvl_0_dst_node(data)) {
+            commit_value(data);
             ctx->state = DNCFG_NODE_NODE;
+            break;
+        }
+        if (dncfg_node_is_close_square_br_lvl_0_dst_prop(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_PROP;
             break;
         }
         on_invalid_token(data);
         ctx->state = DNCFG_NODE_ERROR;
     break;
-    case DNCFG_NODE_NODE_EQ_LIST_FULL: 
+    case DNCFG_NODE_LIST_FULL: 
         if (dncfg_node_is_linecount(data)) {
             inc_line_count(data);
             break;
@@ -321,55 +589,27 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             break;
         }
         if (dncfg_node_is_comma(data)) {
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST;
+            ctx->state = DNCFG_NODE_LIST;
             break;
         }
-        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
+        if (dncfg_node_is_close_square_br_prev_lvl_list(data)) {
             pop_value_stack(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_NEXT;
+            ctx->state = DNCFG_NODE_LIST_NEXT;
             break;
         }
-        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
-            clear_value_stack(data);
+        if (dncfg_node_is_close_square_br_prev_lvl_dict(data)) {
+            pop_value_stack(data);
+            ctx->state = DNCFG_NODE_DICT_NEXT;
+            break;
+        }
+        if (dncfg_node_is_close_square_br_lvl_0_dst_node(data)) {
+            commit_value(data);
             ctx->state = DNCFG_NODE_NODE;
             break;
         }
-        on_invalid_token(data);
-        ctx->state = DNCFG_NODE_ERROR;
-    break;
-    case DNCFG_NODE_NODE_EQ_LIST_NEXT: 
-        if (dncfg_node_is_linecount(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_newline(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_space(data)) {
-            break;
-        }
-        if (dncfg_node_is_comma(data)) {
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST;
-            break;
-        }
-        if (dncfg_node_is_string(data)) {
-            append_to_list(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_STR;
-            break;
-        }
-        if (dncfg_node_is_number(data)) {
-            append_to_list(data);
-            ctx->state = DNCFG_NODE_NODE_EQ_LIST_FULL;
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
-            pop_value_stack(data);
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
-            clear_value_stack(data);
-            ctx->state = DNCFG_NODE_NODE;
+        if (dncfg_node_is_close_square_br_lvl_0_dst_prop(data)) {
+            commit_value(data);
+            ctx->state = DNCFG_NODE_PROP;
             break;
         }
         on_invalid_token(data);
@@ -395,9 +635,10 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             ctx->state = DNCFG_NODE_PROP_EQ_REF;
             break;
         }
-        if (dncfg_node_is_open_squre_br(data)) {
-            start_prop_list(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST;
+        if (dncfg_node_is_open_square_br(data)) {
+            set_value_dst_prop(data);
+            node_putback(data);
+            ctx->state = DNCFG_NODE_VALUE;
             break;
         }
         on_invalid_token(data);
@@ -423,7 +664,7 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             break;
         }
         if (dncfg_node_is_space(data)) {
-            ctx->state = DNCFG_NODE_NODE_VALUE;
+            ctx->state = DNCFG_NODE_NODE_NUMBER;
             break;
         }
         on_invalid_token(data);
@@ -491,155 +732,6 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         }
         if (dncfg_node_is_name(data)) {
             add_prop_name(data);
-            ctx->state = DNCFG_NODE_PROP;
-            break;
-        }
-        on_invalid_token(data);
-        ctx->state = DNCFG_NODE_ERROR;
-    break;
-    case DNCFG_NODE_PROP_EQ_LIST: 
-        if (dncfg_node_is_linecount(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_newline(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_space(data)) {
-            break;
-        }
-        if (dncfg_node_is_string(data)) {
-            append_to_list(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_STR;
-            break;
-        }
-        if (dncfg_node_is_number(data)) {
-            append_to_list(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_FULL;
-            break;
-        }
-        if (dncfg_node_is_ref(data)) {
-            append_ref_to_list(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_FULL;
-            break;
-        }
-        if (dncfg_node_is_open_squre_br(data)) {
-            push_list_to_value_stack(data);
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
-            pop_value_stack(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_NEXT;
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
-            clear_value_stack(data);
-            ctx->state = DNCFG_NODE_PROP;
-            break;
-        }
-        on_invalid_token(data);
-        ctx->state = DNCFG_NODE_ERROR;
-    break;
-    case DNCFG_NODE_PROP_EQ_LIST_STR: 
-        if (dncfg_node_is_linecount(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_newline(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_space(data)) {
-            break;
-        }
-        if (dncfg_node_is_comma(data)) {
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST;
-            break;
-        }
-        if (dncfg_node_is_string(data)) {
-            append_to_last_in_prop_list(data);
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
-            pop_value_stack(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_NEXT;
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
-            clear_value_stack(data);
-            ctx->state = DNCFG_NODE_PROP;
-            break;
-        }
-        on_invalid_token(data);
-        ctx->state = DNCFG_NODE_ERROR;
-    break;
-    case DNCFG_NODE_PROP_EQ_LIST_FULL: 
-        if (dncfg_node_is_linecount(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_newline(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_space(data)) {
-            break;
-        }
-        if (dncfg_node_is_comma(data)) {
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST;
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
-            pop_value_stack(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_NEXT;
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
-            clear_value_stack(data);
-            ctx->state = DNCFG_NODE_PROP;
-            break;
-        }
-        on_invalid_token(data);
-        ctx->state = DNCFG_NODE_ERROR;
-    break;
-    case DNCFG_NODE_PROP_EQ_LIST_NEXT: 
-        if (dncfg_node_is_linecount(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_newline(data)) {
-            inc_line_count(data);
-            break;
-        }
-        if (dncfg_node_is_space(data)) {
-            break;
-        }
-        if (dncfg_node_is_comma(data)) {
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST;
-            break;
-        }
-        if (dncfg_node_is_string(data)) {
-            append_to_list(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_STR;
-            break;
-        }
-        if (dncfg_node_is_number(data)) {
-            append_to_list(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_FULL;
-            break;
-        }
-        if (dncfg_node_is_ref(data)) {
-            append_ref_to_list(data);
-            ctx->state = DNCFG_NODE_PROP_EQ_LIST_FULL;
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_ne0(data)) {
-            pop_value_stack(data);
-            break;
-        }
-        if (dncfg_node_is_close_squre_br_lvl_e0(data)) {
-            clear_value_stack(data);
             ctx->state = DNCFG_NODE_PROP;
             break;
         }

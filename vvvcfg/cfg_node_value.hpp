@@ -3,11 +3,14 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace vvv {
 
 struct Value {
-    enum class DATA_TYPE { STRING, LIST };
+    using list_type = std::vector<Value>;
+    using dict_type = std::unordered_map<std::string, Value>;
+    enum class DATA_TYPE { STRING, LIST, DICT };
 
     Value();
     explicit Value(DATA_TYPE type);
@@ -21,12 +24,22 @@ struct Value {
     Value& operator=(const std::vector<T>& value)
     {
         type = DATA_TYPE::LIST;
-        data = std::vector<Value>();
+        data = list_type();
         auto& list = asList();
         const auto s = value.size();
         list.resize(s);
         for (size_t i = 0; i < s; ++i)
             list[i] = value[i];
+        return *this;
+    }
+    template <typename T>
+    Value& operator=(const std::unordered_map<std::string, T>& value)
+    {
+        type = DATA_TYPE::DICT;
+        data = dict_type();
+        auto& dict = asDict();
+        for (const auto& i: value)
+            dict[i.first] = i.second;
         return *this;
     }
 
@@ -40,18 +53,21 @@ struct Value {
 
     bool isString() const {return type == DATA_TYPE::STRING;}
     bool isList() const {return type == DATA_TYPE::LIST;}
+    bool isDict() const {return type == DATA_TYPE::DICT;}
     const std::string& asString() const;
     std::string& asString();
-    const std::vector<Value>& asList() const;
-    std::vector<Value>& asList();
-    const std::vector<std::string> asStringList() const;
+    const list_type& asList() const;
+    list_type& asList();
+    const dict_type& asDict() const;
+    dict_type& asDict();
+    std::vector<std::string> asStringList() const;
 
     bool operator==(const Value& other) const;
 private:
     void assert_list() const;
+    void assert_dict() const;
     void assert_string() const;
 
-    using any_list = std::vector<Value>;
     boost::any data;
     DATA_TYPE type;
 };
@@ -59,5 +75,6 @@ private:
 } // namespace vvv
 
 std::ostream& operator<<(std::ostream& str, const vvv::Value& n);
-std::ostream& operator<<(std::ostream& str, const std::vector<vvv::Value>& n);
+std::ostream& operator<<(std::ostream& str, const vvv::Value::list_type& n);
+std::ostream& operator<<(std::ostream& str, const vvv::Value::dict_type& n);
 
