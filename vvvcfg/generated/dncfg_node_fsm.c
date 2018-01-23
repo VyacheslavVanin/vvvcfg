@@ -167,6 +167,11 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             ctx->state = DNCFG_NODE_NODE_EQ_STR;
             break;
         }
+        if (dncfg_node_is_name(data)) {
+            add_value_number(data);
+            ctx->state = DNCFG_NODE_NODE_NUMBER;
+            break;
+        }
         if (dncfg_node_is_open_square_br(data)) {
             set_value_dst_node(data);
             node_putback(data);
@@ -272,6 +277,11 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             ctx->state = DNCFG_NODE_LIST_STR;
             break;
         }
+        if (dncfg_node_is_name(data)) {
+            append_to_list(data);
+            ctx->state = DNCFG_NODE_LIST_FULL;
+            break;
+        }
         if (dncfg_node_is_number(data)) {
             append_to_list(data);
             ctx->state = DNCFG_NODE_LIST_FULL;
@@ -327,6 +337,11 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             break;
         }
         if (dncfg_node_is_string(data)) {
+            dict_set_key(data);
+            ctx->state = DNCFG_NODE_DICT_KEY;
+            break;
+        }
+        if (dncfg_node_is_name(data)) {
             dict_set_key(data);
             ctx->state = DNCFG_NODE_DICT_KEY;
             break;
@@ -447,6 +462,11 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
         if (dncfg_node_is_string(data)) {
             dict_set_string_value(data);
             ctx->state = DNCFG_NODE_DICT_KEY_STRING;
+            break;
+        }
+        if (dncfg_node_is_name(data)) {
+            dict_set_string_value(data);
+            ctx->state = DNCFG_NODE_DICT_KEY_NUMBER;
             break;
         }
         if (dncfg_node_is_number(data)) {
@@ -626,6 +646,11 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             break;
         }
         if (dncfg_node_is_number(data)) {
+            add_prop_value_number(data);
+            ctx->state = DNCFG_NODE_PROP_EQ_NUM;
+            break;
+        }
+        if (dncfg_node_is_name(data)) {
             add_prop_value_number(data);
             ctx->state = DNCFG_NODE_PROP_EQ_NUM;
             break;

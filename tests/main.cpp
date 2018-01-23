@@ -590,6 +590,26 @@ GTEST_TEST(vvvcfg, numbers_sign_throw)
     EXPECT_THROW(vvv::make_cfg("int_neg = ++42"), std::logic_error);
 }
 
+GTEST_TEST(vvvcfg, names_as_strings)
+{
+    const auto input = R"(
+node1 = text
+node2 prop=text2
+node3 = [val1, val2, val3]
+node4 = {key: value, key2: value2}
+    )";
+    vvv::CfgNode root("");
+    root = vvv::make_cfg(input);
+    EXPECT_EQ(root.getChild("node1").getValue().asString(), "text");
+    EXPECT_EQ(root.getChild("node2").getProperty("prop").asString(), "text2");
+    const std::vector<std::string> expected{"val1", "val2", "val3"};
+    EXPECT_EQ(root.getChild("node3").getValue().asStringList(), expected);
+    const auto& dict = root.getChild("node4").getValue().asDict();
+    EXPECT_EQ(dict.at("key").asString(), "value");
+    EXPECT_EQ(dict.at("key2").asString(), "value2");
+}
+
+
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
