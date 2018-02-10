@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 project(vvvcfg)
 
-enable_testing()
-
 set (CMAKE_CXX_STANDARD 14)
 
 find_package(Boost REQUIRED)
@@ -22,6 +20,7 @@ set_target_properties(vvvcfg_static PROPERTIES OUTPUT_NAME vvvcfg)
 target_link_libraries(vvvcfg)
 
 
+enable_testing()
 add_subdirectory(tests)
 
 # Installation
