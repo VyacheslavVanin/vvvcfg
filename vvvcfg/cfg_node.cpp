@@ -172,6 +172,15 @@ const CfgNode::value_type& CfgNode::getProperty(const std::string& name) const
     return properties.at(name);
 }
 
+const CfgNode::value_type& CfgNode::getProperty(const std::string& name,
+                              const CfgNode::value_type& default_value) const
+{
+    const auto& it = properties.find(name);
+    if (it == properties.end()) return default_value;
+
+    return it->second;
+}
+
 CfgNode::value_type& CfgNode::getProperty(const std::string& name)
 {
     return properties.at(name);
@@ -182,14 +191,39 @@ const std::string& CfgNode::getPropertyAsString(const std::string& name) const
     return getProperty(name).asString();
 }
 
+const std::string& CfgNode::getPropertyAsString(const std::string& name,
+        const std::string& default_value) const
+{
+    const auto& it = properties.find(name);
+    if (it == properties.end()) return default_value;
+
+    return it->second.asString();
+}
+
 double CfgNode::getPropertyAsDouble(const std::string& name) const
 {
     return std::stod(getPropertyAsString(name));
 }
 
+double CfgNode::getPropertyAsDouble(const std::string& name, double default_value) const
+{
+    const auto& it = properties.find(name);
+    if (it == properties.end()) return default_value;
+
+    return std::stod(it->second.asString());
+}
+
 long long CfgNode::getPropertyAsLong(const std::string& name) const
 {
     return std::stoll(getPropertyAsString(name));
+}
+
+long long CfgNode::getPropertyAsLong(const std::string& name, long long default_value) const
+{
+    const auto& it = properties.find(name);
+    if (it == properties.end()) return default_value;
+
+    return std::stoll(it->second.asString());
 }
 
 const CfgNode::children_container_type& CfgNode::getChildren() const
