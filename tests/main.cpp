@@ -609,6 +609,21 @@ node4 = {key: value, key2: value2}
     EXPECT_EQ(dict.at("key2").asString(), "value2");
 }
 
+GTEST_TEST(vvvcfg, dict_as_property)
+{
+    const auto input = R"(
+node1
+    node4 property={key: value,
+                    key2: value2}
+    )";
+    const auto& root = vvv::make_cfg(input);
+    const auto& node4 = root.getChild("node1.node4");
+    ASSERT_TRUE(node4.hasProperty("property"));
+    const auto& property = node4.getProperty("property");
+    EXPECT_TRUE(property.isDict());
+    EXPECT_EQ(property.asDict().at("key").asString(), "value");
+    EXPECT_EQ(property.asDict().at("key2").asString(), "value2");
+}
 
 int main(int argc, char** argv)
 {

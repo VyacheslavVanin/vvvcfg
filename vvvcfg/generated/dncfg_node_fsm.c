@@ -666,6 +666,12 @@ void dncfg_node_step(dncfg_node_ctx_t* ctx)
             ctx->state = DNCFG_NODE_VALUE;
             break;
         }
+        if (dncfg_node_is_open_curly_br(data)) {
+            set_value_dst_prop(data);
+            node_putback(data);
+            ctx->state = DNCFG_NODE_VALUE;
+            break;
+        }
         on_invalid_token(data);
         ctx->state = DNCFG_NODE_ERROR;
     break;

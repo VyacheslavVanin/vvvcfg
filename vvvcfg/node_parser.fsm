@@ -163,6 +163,7 @@ PROP_EQ  is_number          PROP_EQ_NUM  add_prop_value_number;
 PROP_EQ  is_name            PROP_EQ_NUM  add_prop_value_number;
 PROP_EQ  is_ref             PROP_EQ_REF  add_prop_value_ref;
 PROP_EQ  is_open_square_br  VALUE        set_value_dst_prop      node_putback;
+PROP_EQ  is_open_curly_br   VALUE        set_value_dst_prop      node_putback;
 
 PROP_EQ_STR  default       ERROR        on_invalid_token;
 PROP_EQ_STR  is_newline    START        inc_line_count;
