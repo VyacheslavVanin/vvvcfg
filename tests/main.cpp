@@ -625,6 +625,39 @@ node1
     EXPECT_EQ(property.asDict().at("key2").asString(), "value2");
 }
 
+GTEST_TEST(vvvcfg, dict_ref_as_property)
+{
+    const auto input = R"(
+ref={key: value,
+     key2: value2}
+node1
+    node4 property=$ref
+    )";
+    const auto& root = vvv::make_cfg(input);
+    const auto& node4 = root.getChild("node1.node4");
+    ASSERT_TRUE(node4.hasProperty("property"));
+    const auto& property = node4.getProperty("property");
+    EXPECT_TRUE(property.isDict());
+    EXPECT_EQ(property.asDict().at("key").asString(), "value");
+    EXPECT_EQ(property.asDict().at("key2").asString(), "value2");
+}
+
+GTEST_TEST(vvvcfg, list_ref_as_property)
+{
+    const auto input = R"(
+ref=[value, value2]
+node1
+    node4 property=$ref
+    )";
+    const auto& root = vvv::make_cfg(input);
+    const auto& node4 = root.getChild("node1.node4");
+    ASSERT_TRUE(node4.hasProperty("property"));
+    const auto& property = node4.getProperty("property");
+    EXPECT_TRUE(property.isList());
+    EXPECT_EQ(property.asStringList()[0], "value");
+    EXPECT_EQ(property.asStringList()[1], "value2");
+}
+
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
