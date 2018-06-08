@@ -1,0 +1,14 @@
+before_script:
+  - apt-get update -qq
+  - apt-get install -y -qq libboost-system-dev cmake libgtest-dev
+  - (cd /usr/src/gtest; cmake . && make -j8 && cp *.a /usr/lib/)
+  - g++ -v
+  - which g++
+
+rspec:
+  script:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j
+    - make test
