@@ -21,7 +21,6 @@ Format features:
 string_value = "Hello"
 number_value = 42
 floating_number_value = 3.14
-list_ex = [3.14, 42, "foo"]
 
 # subnodes example
 # Use indent to define child nodes
@@ -45,6 +44,10 @@ node_copy $node1.subnode2                   # copy whole hierarchy from subnode2
                                             # node_copy color = "Green"
                                             #     anothersubnode width = "10",
                                             #                    height = "5"
+
+# Arrays and dict can be used as values of nodes and properties.
+list_ex = [3.14, 42, "foo"]
+dict_ex = {a: 3, b: 42, c: "hello world", d: $list_ex}
 
 ```
 
