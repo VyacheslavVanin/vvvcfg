@@ -50,6 +50,8 @@ struct Value {
 
     Value& operator[](size_t i);
     const Value& operator[](size_t i) const;
+    Value& operator[](const std::string& key);
+    const Value& operator[](const std::string& key) const;
 
     bool isString() const {return type == DATA_TYPE::STRING;}
     bool isList() const {return type == DATA_TYPE::LIST;}

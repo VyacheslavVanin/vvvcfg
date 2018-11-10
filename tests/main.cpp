@@ -525,6 +525,9 @@ node1 = {"key": "value",
     EXPECT_EQ(nested.size(), 2);
     EXPECT_EQ(nested.at("1").asString(), "111");
     EXPECT_EQ(nested.at("2").asString(), "222");
+    EXPECT_EQ(value["key"].asString(), "value");
+    EXPECT_EQ(value["nested"]["1"].asString(), "111");
+    EXPECT_EQ(value["nested"]["2"].asString(), "222");
 }
 
 GTEST_TEST(vvvcfg, dict_nested_list)

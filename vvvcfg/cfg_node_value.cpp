@@ -71,6 +71,18 @@ const Value& Value::operator[](size_t i) const
     return list[i];
 }
 
+Value& Value::operator[](const std::string& key)
+{
+    auto& list = *boost::any_cast<dict_type>(&data);
+    return list.at(key);
+}
+
+const Value& Value::operator[](const std::string& key) const
+{
+    auto& list = *boost::any_cast<dict_type>(&data);
+    return list.at(key);
+}
+
 std::string& Value::asString()
 {
     return const_cast<std::string&>(
