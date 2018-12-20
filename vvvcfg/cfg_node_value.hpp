@@ -63,6 +63,9 @@ struct Value {
     const dict_type& asDict() const;
     dict_type& asDict();
     std::vector<std::string> asStringList() const;
+    double asDouble() const;
+    int asInt() const;
+    long long asLong() const;
 
     bool operator==(const Value& other) const;
 private:

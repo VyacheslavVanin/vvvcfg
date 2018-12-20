@@ -127,6 +127,24 @@ std::vector<std::string> Value::asStringList() const
     return ret;
 }
 
+double Value::asDouble() const
+{
+    const auto& str = asString();
+    return std::stod(str);
+}
+
+int Value::asInt() const
+{
+    const auto& str = asString();
+    return std::stoi(str);
+}
+
+long long Value::asLong() const
+{
+    const auto& str = asString();
+    return std::stoll(str);
+}
+
 bool Value::operator==(const Value& other) const
 {
     if (type != other.getType())
