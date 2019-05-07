@@ -544,7 +544,7 @@ node1 = {"key": "value",
     EXPECT_TRUE(value.isDict());
     const auto& dict1 = value.asDict();
     const auto& nested = dict1.at("nested").asStringList();
-    const std::vector<std::string> expected {"1", "2", "3"};
+    const std::vector<std::string> expected{"1", "2", "3"};
     EXPECT_EQ(nested, expected);
 }
 

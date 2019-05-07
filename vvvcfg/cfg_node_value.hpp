@@ -2,8 +2,8 @@
 #include <boost/any.hpp>
 #include <ostream>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace vvv {
 
@@ -38,7 +38,7 @@ struct Value {
         type = DATA_TYPE::DICT;
         data = dict_type();
         auto& dict = asDict();
-        for (const auto& i: value)
+        for (const auto& i : value)
             dict[i.first] = i.second;
         return *this;
     }
@@ -53,9 +53,9 @@ struct Value {
     Value& operator[](const std::string& key);
     const Value& operator[](const std::string& key) const;
 
-    bool isString() const {return type == DATA_TYPE::STRING;}
-    bool isList() const {return type == DATA_TYPE::LIST;}
-    bool isDict() const {return type == DATA_TYPE::DICT;}
+    bool isString() const { return type == DATA_TYPE::STRING; }
+    bool isList() const { return type == DATA_TYPE::LIST; }
+    bool isDict() const { return type == DATA_TYPE::DICT; }
     const std::string& asString() const;
     std::string& asString();
     const list_type& asList() const;
@@ -68,6 +68,7 @@ struct Value {
     long long asLong() const;
 
     bool operator==(const Value& other) const;
+
 private:
     void assert_list() const;
     void assert_dict() const;
@@ -82,4 +83,3 @@ private:
 std::ostream& operator<<(std::ostream& str, const vvv::Value& n);
 std::ostream& operator<<(std::ostream& str, const vvv::Value::list_type& n);
 std::ostream& operator<<(std::ostream& str, const vvv::Value::dict_type& n);
-

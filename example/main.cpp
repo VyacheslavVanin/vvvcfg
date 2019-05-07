@@ -15,9 +15,10 @@ int main(int argc, char** argv)
     std::cout << root.getChild({"view", "l1", "line1"});
     std::cout << root.getChild("view.l1.line1");
     std::cout << root.getChild("aaa").getValue().asString() << "\n";
-    std::cout << root.getChild("view.l1.text1").getProperty("font").asString() << "\n";
+    std::cout << root.getChild("view.l1.text1").getProperty("font").asString()
+              << "\n";
     std::cout << "\nList example\n";
     auto list = root.getChild("list_ex").getValue().asList();
-    for (const auto& s: list)
+    for (const auto& s : list)
         std::cout << s << "\n";
 }

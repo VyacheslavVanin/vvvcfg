@@ -1,10 +1,10 @@
 #pragma once
+#include "cfg_node_value.hpp"
 #include <algorithm>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include "cfg_node_value.hpp"
 
 namespace vvv {
 
@@ -47,10 +47,13 @@ public:
 
     void setProperty(const std::string& name, const value_type& value);
     void setProperty(const std::string& name, const std::string& value);
-    void appendToStringProperty(const std::string& name, const std::string& value);
+    void appendToStringProperty(const std::string& name,
+                                const std::string& value);
     void setProperty(const std::string& name, const value_list_type& value);
-    void appendToListProperty(const std::string& name, const std::string& value);
-    void appendToLastListProperty(const std::string& name, const std::string& value);
+    void appendToListProperty(const std::string& name,
+                              const std::string& value);
+    void appendToLastListProperty(const std::string& name,
+                                  const std::string& value);
 
     bool hasProperty(const std::string& name) const;
     const value_type& getProperty(const std::string& name) const;
@@ -59,14 +62,17 @@ public:
     value_type& getProperty(const std::string& name);
 
     const std::string& getPropertyAsString(const std::string& name) const;
-    const std::string& getPropertyAsString(const std::string& name,
-                                         const std::string& default_value) const;
+    const std::string&
+    getPropertyAsString(const std::string& name,
+                        const std::string& default_value) const;
 
     double getPropertyAsDouble(const std::string& name) const;
-    double getPropertyAsDouble(const std::string& name, double default_value) const;
+    double getPropertyAsDouble(const std::string& name,
+                               double default_value) const;
 
     long long getPropertyAsLong(const std::string& name) const;
-    long long getPropertyAsLong(const std::string& name, long long default_value) const;
+    long long getPropertyAsLong(const std::string& name,
+                                long long default_value) const;
 
     bool hasValue() const;
     const value_type& getValue() const;
@@ -97,6 +103,6 @@ private:
     children_it find_child(const std::string& name);
 };
 
-}
+} // namespace vvv
 
 std::ostream& operator<<(std::ostream& str, const vvv::CfgNode& node);

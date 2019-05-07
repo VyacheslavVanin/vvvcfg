@@ -1,7 +1,7 @@
 #include "token_parser.hpp"
 #include <iostream>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 struct dncfg_token_data_t {
     dncfg_token_data_t(std::istream& str)
@@ -79,12 +79,12 @@ void start_newline_token(dncfg_token_data_t* data)
 void start_open_square_br(dncfg_token_data_t* data)
 {
     data->token = {TOKEN_TYPE_OPEN_SQUARE_BR, "", data->line_number};
-} 
+}
 
 void start_close_square_br(dncfg_token_data_t* data)
 {
     data->token = {TOKEN_TYPE_CLOSE_SQUARE_BR, "", data->line_number};
-} 
+}
 
 void start_open_curly_br(dncfg_token_data_t* data)
 {
