@@ -154,7 +154,6 @@ void append_to_list(dncfg_node_data_t* data)
 
 void append_ref_to_list(dncfg_node_data_t* data)
 {
-    using Value = vvv::CfgNode::value_type;
     const auto& name = data->input.value;
     const auto& ref_node = data->root.getChild(name);
     auto& value_stack = data->value_stack;
