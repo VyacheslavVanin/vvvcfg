@@ -9,6 +9,6 @@ rspec:
   script:
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake .. -DWITH_TESTS
     - make -j
     - make test

@@ -20,8 +20,11 @@ set_target_properties(vvvcfg_static PROPERTIES OUTPUT_NAME vvvcfg)
 target_link_libraries(vvvcfg)
 
 
-enable_testing()
-add_subdirectory(tests)
+option(WITH_TESTS "BUILD WITH TESTS" OFF)
+if(WITH_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif(WITH_TESTS)
 
 # Installation
 set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "..." FORCE)
