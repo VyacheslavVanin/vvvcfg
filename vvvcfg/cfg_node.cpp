@@ -1,6 +1,6 @@
 #include "cfg_node.hpp"
-#include <boost/algorithm/string.hpp>
 #include <iostream>
+#include <iterator>
 #include <numeric>
 
 namespace vvv {
@@ -74,10 +74,34 @@ CfgNode& CfgNode::getChild(size_t n)
     return const_cast<CfgNode&>(c->getChild(n));
 }
 
+namespace {
+inline void split(const std::string& input, char delimiter,
+                  std::vector<std::string>& ret)
+{
+    using namespace std;
+    size_t last_pos = 0;
+    while (true) {
+        const size_t current_pos = input.find(delimiter, last_pos);
+        if (current_pos == string::npos) {
+            const string substr =
+                input.substr(last_pos, input.size() - last_pos);
+            ret.push_back(substr);
+            break;
+        }
+        else {
+            const string substr =
+                input.substr(last_pos, current_pos - last_pos);
+            ret.push_back(substr);
+            last_pos = current_pos + 1;
+        }
+    }
+}
+} // namespace
+
 const CfgNode& CfgNode::getChild(const std::string& name) const
 {
     std::vector<std::string> names;
-    boost::split(names, name, boost::is_any_of("."));
+    split(name, '.', names);
     return getChild(names);
 }
 

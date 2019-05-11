@@ -1,9 +1,10 @@
 #pragma once
-#include <boost/any.hpp>
 #include <ostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "any.hpp"
 
 namespace vvv {
 
@@ -74,7 +75,7 @@ private:
     void assert_dict() const;
     void assert_string() const;
 
-    boost::any data;
+    vvv::Any data;
     DATA_TYPE type;
 };
 

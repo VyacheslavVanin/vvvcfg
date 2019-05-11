@@ -3,8 +3,6 @@ project(vvvcfg)
 
 set (CMAKE_CXX_STANDARD 14)
 
-find_package(Boost REQUIRED)
-
 # Set include path
 include_directories(.)
 

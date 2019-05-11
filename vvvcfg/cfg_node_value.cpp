@@ -46,16 +46,16 @@ Value& Value::operator=(const std::string& value)
 Value& Value::append(const Value& value)
 {
     assert_list();
-    auto* list = boost::any_cast<list_type>(&data);
-    list->push_back(value);
+    auto& list = vvv::any_cast<list_type>(data);
+    list.push_back(value);
     return *this;
 }
 
 size_t Value::size() const
 {
     assert_list();
-    const auto* list = boost::any_cast<list_type>(&data);
-    return list->size();
+    const auto& list = vvv::any_cast<list_type>(data);
+    return list.size();
 }
 
 bool Value::empty() const { return data.empty(); }
@@ -67,19 +67,19 @@ Value& Value::operator[](size_t i)
 
 const Value& Value::operator[](size_t i) const
 {
-    auto& list = *boost::any_cast<list_type>(&data);
+    auto& list = vvv::any_cast<list_type>(data);
     return list[i];
 }
 
 Value& Value::operator[](const std::string& key)
 {
-    auto& list = *boost::any_cast<dict_type>(&data);
+    auto& list = vvv::any_cast<dict_type>(data);
     return list.at(key);
 }
 
 const Value& Value::operator[](const std::string& key) const
 {
-    auto& list = *boost::any_cast<dict_type>(&data);
+    auto& list = vvv::any_cast<dict_type>(data);
     return list.at(key);
 }
 
@@ -92,7 +92,7 @@ std::string& Value::asString()
 const std::string& Value::asString() const
 {
     assert_string();
-    return *boost::any_cast<std::string>(&data);
+    return vvv::any_cast<std::string>(data);
 }
 
 Value::list_type& Value::asList()
@@ -103,7 +103,7 @@ Value::list_type& Value::asList()
 const Value::list_type& Value::asList() const
 {
     assert_list();
-    return *boost::any_cast<list_type>(&data);
+    return vvv::any_cast<list_type>(data);
 }
 
 Value::dict_type& Value::asDict()
@@ -114,7 +114,7 @@ Value::dict_type& Value::asDict()
 const Value::dict_type& Value::asDict() const
 {
     assert_dict();
-    return *boost::any_cast<dict_type>(&data);
+    return vvv::any_cast<dict_type>(data);
 }
 
 std::vector<std::string> Value::asStringList() const
