@@ -27,7 +27,7 @@ endif(WITH_TESTS)
 # Installation
 set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "..." FORCE)
 set_target_properties(vvvcfg PROPERTIES PUBLIC_HEADER
-    "vvvcfg/vvvcfg.hpp;vvvcfg/cfg_node.hpp;vvvcfg/cfg_node_value.hpp")
+    "vvvcfg/vvvcfg.hpp;vvvcfg/cfg_node.hpp;vvvcfg/cfg_node_value.hpp;vvvcfg/any.hpp")
 INSTALL(TARGETS vvvcfg vvvcfg_static
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
