@@ -128,24 +128,38 @@ const CfgNode& CfgNode::getChild(const std::vector<std::string>& names) const
     return *node;
 }
 
-const CfgNode& CfgNode::getChild(std::initializer_list<std::string> list) const
-{
-    const CfgNode* node = this;
-    size_t i = 0;
-    for (const auto& name : list) {
-        ++i;
-        auto it = node->find_child(name);
-        if (it == node->children.end())
-            throw std::out_of_range(join(list.begin(), list.begin() + i));
-        node = &*it;
-    }
-    return *node;
-}
-
 CfgNode& CfgNode::getChild(const std::string& name)
 {
     const auto* c = static_cast<const CfgNode*>(this);
     return const_cast<CfgNode&>(c->getChild(name));
+}
+
+const CfgNode* CfgNode::getChildPtr(const std::string& name) const
+try {
+    return &getChild(name);
+}
+catch (...) {
+    return nullptr;
+}
+
+const CfgNode* CfgNode::getChildPtr(const std::vector<std::string>& names) const
+try {
+    return &getChild(names);
+}
+catch (...) {
+    return nullptr;
+}
+
+CfgNode* CfgNode::getChildPtr(const std::string& name)
+{
+    const auto* c = static_cast<const CfgNode*>(this);
+    return const_cast<CfgNode*>(c->getChildPtr(name));
+}
+
+CfgNode* CfgNode::getChildPtr(const std::vector<std::string>& names)
+{
+    const auto* c = static_cast<const CfgNode*>(this);
+    return const_cast<CfgNode*>(c->getChildPtr(names));
 }
 
 void CfgNode::setProperty(const std::string& name, const value_type& value)

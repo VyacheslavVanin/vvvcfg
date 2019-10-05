@@ -43,7 +43,18 @@ public:
     const CfgNode& getChild(const std::string& name) const;
     CfgNode& getChild(const std::string& name);
     const CfgNode& getChild(const std::vector<std::string>& names) const;
-    const CfgNode& getChild(std::initializer_list<std::string> list) const;
+
+    /// returns nullptr if no such child
+    const CfgNode* getChildPtr(const std::string& name) const;
+
+    /// returns nullptr if no such child
+    const CfgNode* getChildPtr(const std::vector<std::string>& names) const;
+
+    /// returns nullptr if no such child
+    CfgNode* getChildPtr(const std::string& name);
+
+    /// returns nullptr if no such child
+    CfgNode* getChildPtr(const std::vector<std::string>& names);
 
     void setProperty(const std::string& name, const value_type& value);
     void setProperty(const std::string& name, const std::string& value);
